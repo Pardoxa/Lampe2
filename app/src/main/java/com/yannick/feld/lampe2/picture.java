@@ -12,11 +12,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
+import android.widget.Toast;
 
 import com.pes.androidmaterialcolorpickerdialog.ColorPicker;
 
@@ -34,8 +39,57 @@ public class picture extends AppCompatActivity {
     private int minimum = 0;
     private final int max_size = 15;
     private int red, green, blue;
+    private int save = 0;
 
     private int old_x = -1, old_y = -1;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.picture_menu, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()){
+            case R.id.save_menu_picture:
+                Log.d("Save", "calling");
+                SaveAndLoad.saveBitmap(this, save, pixel);
+                Toast.makeText(this,"Saved " + save, Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.load_menu_picture:
+                Bitmap bitmap = SaveAndLoad.getBitmap(this, save);
+                if(bitmap != null){
+                    Log.d("pixel " + bitmap.getWidth(), Integer.toString(bitmap.getHeight()));
+                    for(int x = 0; x < 16; x++){
+                        for(int y = 0; y < 16; y++){
+                            pixel.setPixel(x,y,bitmap.getPixel(x,y));
+                        }
+
+                    }
+                    setImage();
+                    Toast.makeText(this, "Loaded " + save, Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(this, "Can't load " + save + "- not saved yet?", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case R.id.np_menu_picture:
+                NumberPickerDialog newFragment = new NumberPickerDialog();
+                newFragment.setCurrent(save);
+                newFragment.setValueChangeListener(new NumberPicker.OnValueChangeListener() {
+                    @Override
+                    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                        save = newVal;
+                        Log.d("Save", Integer.toString(save));
+                        item.setTitle(Integer.toString(save));
+                    }
+                });
+                newFragment.show(getSupportFragmentManager(), "Save File");
+        }
+        return true;
+    }
 
     private void reset_chess(){
         //Get size of Screen for adjusting the hight.
@@ -45,7 +99,7 @@ public class picture extends AppCompatActivity {
         int width = size.x;
         int height = size.y;
         minimum = Math.min(width, height);
-  
+
         Log.d("minimum", Integer.toString(minimum));
 
 
@@ -61,8 +115,11 @@ public class picture extends AppCompatActivity {
 
             }
         }
+        setImage();
+    }
+
+    private void setImage(){
         Bitmap bitmap = Bitmap.createScaledBitmap(pixel,minimum,minimum,false);
-        //    Canvas canvas = new Canvas(bitmap);
 
         img.setImageBitmap(bitmap);
     }
@@ -92,6 +149,8 @@ public class picture extends AppCompatActivity {
                 green = cp.getGreen();
                 blue = cp.getBlue();
                 color_btn.setBackgroundColor(android.graphics.Color.rgb(red, green, blue));
+                old_x = -1;
+                old_y = -1;
                 cp.dismiss();
             });
         });
@@ -99,7 +158,7 @@ public class picture extends AppCompatActivity {
         fill = findViewById(R.id.fill_color_btn);
         fill.setOnClickListener(v ->{
             pixel.eraseColor(Color.rgb(red, green, blue));
-            img.setImageBitmap(Bitmap.createScaledBitmap(pixel, minimum, minimum,false));
+            setImage();
         });
 
 
@@ -134,7 +193,7 @@ public class picture extends AppCompatActivity {
                     pixel.setPixel(x, y, android.graphics.Color.rgb(red, green, blue));
                     old_x = x;
                     old_y = y;
-                    img.setImageBitmap(Bitmap.createScaledBitmap(pixel, minimum, minimum, false));
+                    setImage();
                 }
 
                 return true;

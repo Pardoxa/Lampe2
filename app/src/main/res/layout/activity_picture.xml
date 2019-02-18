@@ -16,23 +16,29 @@
             android:layout_gravity="center_horizontal">
 
             <Button
-                android:layout_margin="10dp"
+                android:layout_margin="5dp"
                 android:id="@+id/back_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="back" />
             <Button
-                android:layout_margin="10dp"
+                android:layout_margin="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/chess_btn"
                 android:text="chess"/>
             <Button
-                android:layout_margin="10dp"
+                android:layout_margin="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/fill_color_btn"
-                android:text="fill"/>
+                android:text="fill" />
+            <Button
+                android:layout_margin="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/send_btn"
+                android:text="send"/>
         </LinearLayout>
 
         <ImageView
