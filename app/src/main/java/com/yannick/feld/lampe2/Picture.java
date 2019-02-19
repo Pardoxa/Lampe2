@@ -22,7 +22,7 @@ import static android.view.MotionEvent.ACTION_MOVE;
 import static android.view.MotionEvent.ACTION_UP;
 
 
-public class picture extends AppCompatActivity {
+public class Picture extends AppCompatActivity {
 
     private Button chess_btn, fill;
     private ImageButton color_btn;
@@ -76,7 +76,10 @@ public class picture extends AppCompatActivity {
             case R.id.undo_menu_picture:
                 if(!load_picture(-1)){
                     Toast.makeText(this, "Can't undo action - nothing done yet?", Toast.LENGTH_LONG).show();
+                }else{
+                    SaveAndLoad.saveBitmap(this, -2, pixel);
                 }
+                break;
         }
         return true;
     }
@@ -153,7 +156,7 @@ public class picture extends AppCompatActivity {
         color_btn = findViewById(R.id.color_btn);
         color_btn.setBackgroundColor(Color.rgb(red, green, blue));
         color_btn.setOnClickListener(v ->{
-            final ColorPicker cp = new ColorPicker(picture.this, red, green, blue);
+            final ColorPicker cp = new ColorPicker(Picture.this, red, green, blue);
             cp.show();
             Button okColorBtn = cp.findViewById(R.id.okColorButton);
             okColorBtn.setOnClickListener(v2 ->{
