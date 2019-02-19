@@ -11,16 +11,10 @@
         android:gravity="center_horizontal"
         android:orientation="vertical">
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal">
 
-            <Button
-                android:layout_margin="5dp"
-                android:id="@+id/back_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="back" />
             <Button
                 android:layout_margin="5dp"
                 android:layout_width="wrap_content"

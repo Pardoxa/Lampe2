@@ -11,6 +11,7 @@
     <item
         android:id="@+id/save_menu_picture"
         android:title="save"
+        android:icon="@drawable/ic_save_24dp"
         app:showAsAction="always">
     </item>
     <item

@@ -1,13 +1,8 @@
 package com.yannick.feld.lampe2;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.PointF;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,12 +10,9 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import com.pes.androidmaterialcolorpickerdialog.ColorPicker;
@@ -32,7 +24,7 @@ import static android.view.MotionEvent.ACTION_UP;
 
 public class picture extends AppCompatActivity {
 
-    private Button back_btn, chess_btn, fill;
+    private Button chess_btn, fill;
     private ImageButton color_btn;
     private ImageView img;
     private int[] img_viewCoords = new int[2];
@@ -134,8 +126,7 @@ public class picture extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_picture);
-        back_btn = findViewById(R.id.back_btn);
-        back_btn.setOnClickListener(v -> finish());
+
         img = findViewById(R.id.img);
 
         //Get size of Screen for adjusting the hight.
