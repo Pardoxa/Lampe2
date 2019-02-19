@@ -15,14 +15,21 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+interface IconChangeCallback {
+    void callback(int status);
+}
+
+public class MainActivity extends AppCompatActivity implements IconChangeCallback{
 
     public static boolean is_night = true;
     private Button picture_btn;
+    private BLE ble = null;
+    private int scanState = -1;
 
 
     // https://stackoverflow.com/questions/33162152/storage-permission-error-in-marshmallow/41221852#41221852
@@ -75,6 +82,14 @@ public class MainActivity extends AppCompatActivity {
                 SaveAndLoad.SaveBoolean(this, "d_n_mode", is_night);
                 super.recreate();
                 break;
+            default:
+                if(scanState == -1){
+                    ble.scan();
+                }else{
+                    Toast.makeText(this, "invalid",Toast.LENGTH_SHORT).show();
+                }
+
+                break;
         }
         return true;
     }
@@ -99,11 +114,43 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //
-
+        try{
+            ActionBar actionBar = getSupportActionBar();
+            actionBar.setTitle("");
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.bluetooth_disconnected_24dp);
+            actionBar.show();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         checkPermissions();
-        BLE ble = new BLE(this,this);
+        ble = new BLE(this,this, this::callback);
         ble.scan();
 
+    }
+
+    @Override
+    public void callback(int status){
+        ActionBar actionBar = getSupportActionBar();
+        scanState = status;
+        switch (status){
+            case 1:
+                runOnUiThread(() -> actionBar.setHomeAsUpIndicator(R.drawable.bluetooth_searching_24dp));
+                break;
+            case 0:
+                runOnUiThread(() -> actionBar.setHomeAsUpIndicator(R.drawable.bluetooth_connected_24dp));
+                break;
+            default:
+                runOnUiThread(() -> actionBar.setHomeAsUpIndicator(R.drawable.bluetooth_disconnected_24dp));
+                break;
+        }
+        actionBar.show();
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        ble.stopScan();
     }
 }

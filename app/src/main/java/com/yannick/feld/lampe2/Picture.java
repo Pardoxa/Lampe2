@@ -233,7 +233,6 @@ public class Picture extends AppCompatActivity {
             ActionBar actionBar = getSupportActionBar();
             actionBar.setTitle("");
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_save_24dp));
             actionBar.show();
         }catch (Exception e){
             e.printStackTrace();

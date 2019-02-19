@@ -39,13 +39,15 @@ public class BLE {
     private String devName;
     private UUID serviceUUID, characteristicUUID;
     private Context context;
+    private IconChangeCallback iconChangeCallback;
 
 
     Activity activity;
 
-    public BLE(Context context, Activity activity){
+    public BLE(Context context, Activity activity, IconChangeCallback iconChangeCallback){
         this.context = context;
         this.activity = activity;
+        this.iconChangeCallback = iconChangeCallback;
         bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
@@ -58,6 +60,10 @@ public class BLE {
         devName = context.getString(R.string.lampName);
         serviceUUID = UUID.fromString(context.getString(R.string.primary_service_uuid));
         characteristicUUID = UUID.fromString(context.getString(R.string.c_uuid));
+    }
+    protected void finalize(){
+        gatt.disconnect();
+        gatt.close();
     }
 
     private ScanCallback callback = new ScanCallback() {
@@ -81,7 +87,7 @@ public class BLE {
     };
 
     public boolean scan(){
-
+        iconChangeCallback.callback(1);
         return scan(callback);
     }
 
@@ -103,16 +109,18 @@ public class BLE {
         }
     }
 
-    private void stopScan(){
+    public void stopScan(){
         scanner.stopScan(callback);
         if(device != null){
             registerGatt();
+        }else {
+            iconChangeCallback.callback(-1);
         }
     }
 
     private void registerGatt(){
         Log.d("BLE", "registerGatt");
-        gatt = device.connectGatt(context, true, gattCallback);
+        gatt = device.connectGatt(context, false, gattCallback);
     }
 
     private String toWrite;
@@ -124,26 +132,26 @@ public class BLE {
             return;
         }
 
-        Log.i("BLE", "characteristic " + characteristic.toString());
+
         try {
-            Log.i("BLE", "data " + URLEncoder.encode(data, "utf-8"));
-            final int maxSize = 20;
+
+            final int maxSize = 30;
             if(data.length() > maxSize){
                 toWrite = data.substring(maxSize);
-                data = data.substring(0,maxSize);
+                data = data.substring(0, maxSize);
             }else{
                 toWrite = null;
             }
             Log.d("BLE DATA", data);
 
           //  characteristic.setValue(URLEncoder.encode(data.substring(0,10), "utf-8"));
-
+            characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
             characteristic.setValue(data);
 
            // gatt.beginReliableWrite();
             // TODO
             gatt.writeCharacteristic(characteristic);
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -165,14 +173,17 @@ public class BLE {
             Log.d("BLE", "onConnectionStateChange");
             switch(newState){
                 case STATE_CONNECTED:
+                    iconChangeCallback.callback(0);
                     Log.d("BLE", "discoverServices");
                     gatt.discoverServices();
                     break;
                 case STATE_DISCONNECTING:
                     Log.d("BLE", "disconnecting");
+                    iconChangeCallback.callback(-1);
                     break;
                 case STATE_DISCONNECTED:
                     Log.d("BLE", "Disconnected");
+                    iconChangeCallback.callback(-1);
                     break;
             }
         }
