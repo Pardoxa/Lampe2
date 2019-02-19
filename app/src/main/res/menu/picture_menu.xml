@@ -3,18 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:icon="@drawable/ic_undo_black_24dp"
+        app:showAsAction="always"
+        android:title="undo"
+        android:id="@+id/undo_menu_picture">
+    </item>
+    <item
         android:id="@+id/save_menu_picture"
         android:title="save"
         app:showAsAction="always">
     </item>
     <item
-        android:id="@+id/load_menu_picture"
-        android:title="load"
-        app:showAsAction="always">
+        android:id="@+id/np_menu_picture"
+        android:title="Savefile 0"
+        app:showAsAction="ifRoom">
     </item>
     <item
-        android:id="@+id/np_menu_picture"
-        android:title="0"
+        android:id="@+id/load_menu_picture"
+        android:title="load"
         app:showAsAction="ifRoom">
     </item>
 </menu>

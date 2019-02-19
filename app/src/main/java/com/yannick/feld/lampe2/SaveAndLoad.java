@@ -37,6 +37,18 @@ public final class SaveAndLoad {
 
     }
 
+    public static void SaveInt(Context context, String Key, int value){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt(Key, value);
+        editor.apply();     // This line is IMPORTANT !!!
+    }
+
+    public static int getInt(Context context, String Key){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getInt(Key,0);
+    }
+
     public static void saveBitmap(Context context, int Key, Bitmap bitmap){
 
         try{
