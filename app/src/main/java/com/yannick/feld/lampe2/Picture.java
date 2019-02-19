@@ -3,6 +3,8 @@ package com.yannick.feld.lampe2;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -79,6 +81,9 @@ public class Picture extends AppCompatActivity {
                 }else{
                     SaveAndLoad.saveBitmap(this, -2, pixel);
                 }
+                break;
+            default:
+                finish();
                 break;
         }
         return true;
@@ -224,5 +229,14 @@ public class Picture extends AppCompatActivity {
                 return true;
             }
         );
+        try{
+            ActionBar actionBar = getSupportActionBar();
+            actionBar.setTitle("");
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_save_24dp));
+            actionBar.show();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

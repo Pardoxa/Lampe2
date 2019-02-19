@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Lampe2</string>
-    <string name="c_uuid">1963b7b233be11e9b210d663bd873d93</string>
-    <string name="primary_service_uuid">8535886a33c011e9b210d663bd873d93</string>
+    <string name="c_uuid">1963b7b2-33be-11e9-b210-d663bd873d93</string>
+    <string name="primary_service_uuid">8535886a-33c0-11e9-b210-d663bd873d93</string>
+    <string name="lampName">ylampBluetooth</string>
 </resources>
