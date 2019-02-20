@@ -32,7 +32,7 @@ public class BLE {
     final BluetoothManager bluetoothManager;
     private BluetoothGatt gatt;
     private final static int REQUEST_ENABLE_BT = 1;
-    private static final long SCAN_PERIOD = 10000;
+    private static final long SCAN_PERIOD = 5000;
     private BluetoothLeScanner scanner;
     private BluetoothDevice device = null;
     private BluetoothGattCharacteristic characteristic = null;
@@ -125,8 +125,8 @@ public class BLE {
 
     private String toWrite;
 
-    public void writeCharacteristic(BluetoothGattCharacteristic characteristic,
-                                    String data) {
+    public void writeCharacteristic(String data) {
+
         if (bluetoothAdapter == null || gatt == null) {
             Log.w("BLE", "BluetoothAdapter not initialized");
             return;
@@ -135,7 +135,7 @@ public class BLE {
 
         try {
 
-            final int maxSize = 30;
+            final int maxSize = 20;
             if(data.length() > maxSize){
                 toWrite = data.substring(maxSize);
                 data = data.substring(0, maxSize);
@@ -145,12 +145,14 @@ public class BLE {
             Log.d("BLE DATA", data);
 
           //  characteristic.setValue(URLEncoder.encode(data.substring(0,10), "utf-8"));
-            characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+
+
             characteristic.setValue(data);
 
            // gatt.beginReliableWrite();
             // TODO
-            gatt.writeCharacteristic(characteristic);
+            boolean  status = gatt.writeCharacteristic(characteristic);
+            Log.d("BLE status", Boolean.toString(status));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -160,11 +162,13 @@ public class BLE {
         @Override
         public void onPhyUpdate(BluetoothGatt gatt, int txPhy, int rxPhy, int status) {
             super.onPhyUpdate(gatt, txPhy, rxPhy, status);
+            Log.d("BLE", "onPhyUpdate");
         }
 
         @Override
         public void onPhyRead(BluetoothGatt gatt, int txPhy, int rxPhy, int status) {
             super.onPhyRead(gatt, txPhy, rxPhy, status);
+            Log.d("BLE", "onPhyRead");
         }
 
         @Override
@@ -195,7 +199,13 @@ public class BLE {
                 Log.d("BLE", "onServiceDiscovered");
                 Log.d("BLE", gatt.getServices().toString());
                 characteristic = gatt.getService(serviceUUID).getCharacteristic(characteristicUUID);
-                writeCharacteristic(characteristic,"Nothing is more usefull than thinking that 1 or the other this is a test bla hahahaha");
+                characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+                activity.runOnUiThread(() ->{
+                    Handler handler = new Handler();
+                    handler.postDelayed(()-> writeCharacteristic("Nothing"), 1000);
+                });
+
+
 
             }catch (Exception e){
                 e.printStackTrace();
@@ -206,45 +216,53 @@ public class BLE {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicRead(gatt, characteristic, status);
+            Log.d("BLE", "onCharacteristicRead");
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
             Log.d("BLE", "onCharacteristicWrite");
+
             if(status == BluetoothGatt.GATT_SUCCESS && toWrite != null){
-                writeCharacteristic(characteristic, toWrite);
+            //    writeCharacteristic(characteristic, toWrite);
             }
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
+            Log.d("BLE", "onCharacteristicChanged");
         }
 
         @Override
         public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             super.onDescriptorRead(gatt, descriptor, status);
+            Log.d("BLE", "onDescriptorRead");
         }
 
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             super.onDescriptorWrite(gatt, descriptor, status);
+            Log.d("BLE", "onDescriptorWrite");
         }
 
         @Override
         public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
             super.onReliableWriteCompleted(gatt, status);
+            Log.d("BLE", "onReliableWriteComplete");
         }
 
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             super.onReadRemoteRssi(gatt, rssi, status);
+            Log.d("BLE", "onReadRemoteRssi");
         }
 
         @Override
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
             super.onMtuChanged(gatt, mtu, status);
+            Log.d("BLE", "onMtuChanged");
         }
     };
 

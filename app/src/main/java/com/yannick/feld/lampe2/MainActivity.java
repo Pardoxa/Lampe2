@@ -151,6 +151,11 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     @Override
     public void onPause(){
         super.onPause();
-        ble.stopScan();
+        try{
+            ble.stopScan();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }
