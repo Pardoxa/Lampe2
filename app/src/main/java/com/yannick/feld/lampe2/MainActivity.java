@@ -15,6 +15,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -27,9 +29,11 @@ interface IconChangeCallback {
 public class MainActivity extends AppCompatActivity implements IconChangeCallback{
 
     public static boolean is_night = true;
-    private Button picture_btn;
+    private Button picture_btn, send_btn;
+    private EditText textView;
     private BLE ble = null;
     private int scanState = -1;
+    private bluetooth_connect connect = null;
 
 
     // https://stackoverflow.com/questions/33162152/storage-permission-error-in-marshmallow/41221852#41221852
@@ -125,8 +129,10 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         }
 
         checkPermissions();
-        ble = new BLE(this,this);
-        ble.start_server();
+        connect = new bluetooth_connect(this,this);
+        send_btn = findViewById(R.id.send);
+        textView = findViewById(R.id.send_textview);
+        send_btn.setOnClickListener(v -> connect.onSend(textView.getText().toString()));
 
     }
 
