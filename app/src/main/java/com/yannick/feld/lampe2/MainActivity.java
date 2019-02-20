@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 break;
             default:
                 if(scanState == -1){
-                    ble.scan();
+                 //   ble.scan();
                 }else{
                     Toast.makeText(this, "invalid",Toast.LENGTH_SHORT).show();
                 }
@@ -125,8 +125,8 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         }
 
         checkPermissions();
-        ble = new BLE(this,this, this::callback);
-        ble.scan();
+        ble = new BLE(this,this);
+        ble.start_server();
 
     }
 
@@ -151,11 +151,11 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     @Override
     public void onPause(){
         super.onPause();
-        try{
-            ble.stopScan();
+       /* try{
+
         }catch (Exception e){
             e.printStackTrace();
-        }
+        }*/
 
     }
 }
