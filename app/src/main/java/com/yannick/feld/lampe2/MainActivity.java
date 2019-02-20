@@ -31,16 +31,13 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     public static boolean is_night = true;
     private Button picture_btn, send_btn;
     private EditText textView;
-    private BLE ble = null;
     private int scanState = -1;
     private bluetooth_connect connect = null;
 
 
     // https://stackoverflow.com/questions/33162152/storage-permission-error-in-marshmallow/41221852#41221852
     String[] permissions = new String[]{
-            Manifest.permission.BLUETOOTH,
-            Manifest.permission.BLUETOOTH_ADMIN,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.BLUETOOTH
     };
 
     private boolean checkPermissions() {
@@ -88,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 break;
             default:
                 if(scanState == -1){
-                 //   ble.scan();
+                    connect.findRaspberry();
                 }else{
                     Toast.makeText(this, "invalid",Toast.LENGTH_SHORT).show();
                 }
@@ -129,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         }
 
         checkPermissions();
-        connect = new bluetooth_connect(this,this);
+        connect = new bluetooth_connect(this,this, this::callback);
         send_btn = findViewById(R.id.send);
         textView = findViewById(R.id.send_textview);
         send_btn.setOnClickListener(v -> connect.onSend(textView.getText().toString()));

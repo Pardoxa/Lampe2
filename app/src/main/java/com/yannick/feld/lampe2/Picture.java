@@ -26,7 +26,7 @@ import static android.view.MotionEvent.ACTION_UP;
 
 public class Picture extends AppCompatActivity {
 
-    private Button chess_btn, fill;
+    private Button chess_btn, fill, send_btn;
     private ImageButton color_btn;
     private ImageView img;
     private int[] img_viewCoords = new int[2];
@@ -35,7 +35,7 @@ public class Picture extends AppCompatActivity {
     private final int max_size = 15;
     private int red, green, blue;
     private int save = 0;
-
+    private bluetooth_connect connect;
     private int old_x = -1, old_y = -1;
 
     @Override
@@ -133,8 +133,9 @@ public class Picture extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_picture);
 
+        setContentView(R.layout.activity_picture);
+        connect = new bluetooth_connect(this,this, null);
         img = findViewById(R.id.img);
 
         //Get size of Screen for adjusting the hight.
@@ -186,7 +187,6 @@ public class Picture extends AppCompatActivity {
             SaveAndLoad.saveBitmap(this, -2, pixel);
         });
 
-
         img.getLocationOnScreen(img_viewCoords);
         img.setOnTouchListener((v, event) ->
              {
@@ -237,5 +237,20 @@ public class Picture extends AppCompatActivity {
         }catch (Exception e){
             e.printStackTrace();
         }
+        send_btn = findViewById(R.id.send_btn);
+        send_btn.setOnClickListener(v ->{
+            String data = "|<>#~[10,[";
+            for(int x = 0; x < 16; x++){
+                for(int y = 0; y < 16; y++){
+                    int p = pixel.getPixel(x,y);
+                    int R = (p >> 16) & 0xff;
+                    int G = (p >> 8) & 0xff;
+                    int B = p & 0xff;
+                    data += "{" + Integer.toString(R) + "," + Integer.toString(G) + "," + Integer.toString(B) + "}";
+                }
+            }
+            data += "]]~#><|";
+            connect.onSend(data);
+        });
     }
 }

@@ -4,26 +4,36 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 import java.util.Set;
 
 public class bluetooth_connect {
     Context context;
     Activity activity;
-    private final static String TAG = "BLE";
+    private final static String TAG = "Blue";
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothDevice mDevice;
+    private IconChangeCallback callback;
 
 
-    private void findRaspberry() {
+    public void findRaspberry() {
+        if(callback != null)
+            callback.callback(1);
+        boolean found = false;
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter
                 .getBondedDevices();
         for (BluetoothDevice device : pairedDevices) {
-            if(device.getName().equals("unit2"))
+            if(device.getName().equals("unit2")){
+                if(callback != null)
+                    callback.callback(0);
                 this.mDevice=device;
+                found = true;
+            }
+
+        }
+        if(!found){
+            callback.callback(-1);
         }
     }
 
@@ -38,6 +48,8 @@ public class bluetooth_connect {
         if (!mBluetoothAdapter.isEnabled()) {
 
             Log.d(TAG, "Bluetooth not enabled");
+            if(callback != null)
+                callback.callback(-1);
         }
         else{
             Log.d(TAG, "Bluetooth enabled");
@@ -51,10 +63,10 @@ public class bluetooth_connect {
     }
 
 
-    public bluetooth_connect(Context context, Activity activity) {
+    public bluetooth_connect(Context context, Activity activity, IconChangeCallback callback) {
         this.context = context;
         this.activity = activity;
-
+        this.callback = callback;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         initBluetooth();
