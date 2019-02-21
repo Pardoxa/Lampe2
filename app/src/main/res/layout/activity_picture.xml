@@ -33,6 +33,21 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/send_btn"
                 android:text="send"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/picture_textview_switch"/>
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/picture_switch"/>
+            </LinearLayout>
+
         </LinearLayout>
 
         <ImageView

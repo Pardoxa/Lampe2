@@ -16,8 +16,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pes.androidmaterialcolorpickerdialog.ColorPicker;
@@ -32,6 +35,8 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     private Button chess_btn, fill, send_btn;
     private ImageButton color_btn;
     private ImageView img;
+    private Switch toggle;
+    private TextView toggleTextView;
     private int[] img_viewCoords = new int[2];
     private Bitmap pixel = Bitmap.createBitmap(16,16, Bitmap.Config.ARGB_4444);
     private int minimum = 0;
@@ -200,6 +205,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         img.getLocationOnScreen(img_viewCoords);
         img.setOnTouchListener((v, event) ->
              {
+
                 // https://stackoverflow.com/questions/11312128/get-the-touch-position-inside-the-imageview-in-android
                 int touchX = (int) event.getX();
                 int touchY = (int) event.getY();
@@ -214,28 +220,40 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                 y = Math.min(y, max_size);
                 x = Math.max(0, x);
                 y = Math.max(0, y);
-                switch (event.getActionMasked()){
-                    case ACTION_DOWN:
-                        SaveAndLoad.saveBitmap(this, -1, pixel);
-                        Log.d("Action", "DOWN");
-                        break;
-                    case ACTION_MOVE:
-                        Log.d("Action", "Move");
-                        break;
-                    case ACTION_UP:
-                        Log.d("Action", "UP");
-                        break;
-                }
-                Log.d(Integer.toString(x),Integer.toString(y));
-                if(old_x != x || old_y != y){
-                    pixel.setPixel(x, y, android.graphics.Color.rgb(red, green, blue));
-                    old_x = x;
-                    old_y = y;
-                    setImage();
-                }
-                if(event.getActionMasked() == ACTION_UP){
-                    SaveAndLoad.saveBitmap(this, -2, pixel);
-                }
+                 if(!toggle.isChecked()){
+                     switch (event.getActionMasked()){
+                         case ACTION_DOWN:
+                             SaveAndLoad.saveBitmap(this, -1, pixel);
+                             Log.d("Action", "DOWN");
+                             break;
+                         case ACTION_MOVE:
+                             Log.d("Action", "Move");
+                             break;
+                         case ACTION_UP:
+                             Log.d("Action", "UP");
+                             break;
+                     }
+                     Log.d(Integer.toString(x),Integer.toString(y));
+                     if(old_x != x || old_y != y){
+                         pixel.setPixel(x, y, android.graphics.Color.rgb(red, green, blue));
+                         old_x = x;
+                         old_y = y;
+                         setImage();
+                     }
+                     if(event.getActionMasked() == ACTION_UP){
+                         SaveAndLoad.saveBitmap(this, -2, pixel);
+                     }
+                 }else{
+                     int p = pixel.getPixel(x,y);
+                     red = (p >> 16) & 0xff;
+                     green = (p >> 8) & 0xff;
+                     blue = p & 0xff;
+                     color_btn.setBackgroundColor(p);
+                     SaveAndLoad.SaveInt(this, "red", red);
+                     SaveAndLoad.SaveInt(this, "green", green);
+                     SaveAndLoad.SaveInt(this, "blue", blue);
+                 }
+
                 return true;
             }
         );
@@ -265,6 +283,17 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
             data += "' ~#><|";
             Toast.makeText(this, "connecting", Toast.LENGTH_SHORT).show();
             connect.onSend(data);
+        });
+
+        toggle = findViewById(R.id.picture_switch);
+        toggleTextView = findViewById(R.id.picture_textview_switch);
+        toggleTextView.setText("draw");
+        toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if(isChecked){
+                toggleTextView.setText("pick");
+            }else {
+                toggleTextView.setText("draw");
+            }
         });
     }
 
