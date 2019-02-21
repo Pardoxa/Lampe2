@@ -166,6 +166,11 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                     break;
                 case 20:
                 case 40:
+                case 41:
+                case 42:
+                case 43:
+                case 44:
+                case 45:
                     send += Integer.toString(command_state);
                     break;
 
@@ -275,6 +280,22 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
             case R.id.radio_demo:
                 command_state = 40;
                 break;
+            case R.id.radio_swirl:
+                command_state = 41;
+                break;
+            case R.id.radio_rainbow_search:
+                command_state = 42;
+                break;
+            case R.id.radio_tunnel:
+                command_state = 43;
+                break;
+            case R.id.radio_checker:
+                command_state = 44;
+                break;
+            case R.id.radio_gradient:
+                command_state = 45;
+                break;
+
         }
         SaveAndLoad.SaveInt(this,"command", command_state);
 

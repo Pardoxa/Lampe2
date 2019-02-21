@@ -89,6 +89,31 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/radio_demo"
                         android:text="demo"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/radio_swirl"
+                        android:text="swirl"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/radio_rainbow_search"
+                        android:text="rainbow search"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/radio_tunnel"
+                        android:text="tunnel"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/radio_gradient"
+                        android:text="gradient"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/radio_checker"
+                        android:text="checker"/>
 
                 </RadioGroup>
             </LinearLayout>
