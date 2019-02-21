@@ -243,7 +243,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         }
         send_btn = findViewById(R.id.send_btn);
         send_btn.setOnClickListener(v ->{
-            String data = "|<>#~[10,[";
+            String data = "|<>#~ --command 1 --picture '";
             for(int x = 0; x < 16; x++){
                 for(int y = 0; y < 16; y++){
                     int p = pixel.getPixel(x,y);
@@ -253,7 +253,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                     data += "{" + Integer.toString(R) + "," + Integer.toString(G) + "," + Integer.toString(B) + "}";
                 }
             }
-            data += "]]~#><|";
+            data += "' ~#><|";
             connect.onSend(data);
         });
     }

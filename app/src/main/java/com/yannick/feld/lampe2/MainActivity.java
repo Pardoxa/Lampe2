@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -17,9 +18,17 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.Chronometer;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.pes.androidmaterialcolorpickerdialog.ColorPicker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +38,23 @@ interface IconChangeCallback {
     void toastCallBack(String toShow);
 }
 
+
+
 public class MainActivity extends AppCompatActivity implements IconChangeCallback{
 
     public static boolean is_night = true;
-    private Button picture_btn, send_btn;
-    private EditText textView;
+    private Button picture_btn, send_btn, duration_btn;
+    private int duration;
+    private RadioGroup radioGroup;
     private int scanState = -1;
     private bluetooth_connect connect = null;
+    private ImageButton img_btn;
+    private int red,green,blue;
+    private int command_state = 0;
+    private float brightness = 0;
+    private RadioButton brightness_radio_btn;
+    private SeekBar brightness_seekbar;
+
 
 
 
@@ -136,11 +155,124 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(connect.mReceiver, filter);
         send_btn = findViewById(R.id.send);
-        textView = findViewById(R.id.send_textview);
-        send_btn.setOnClickListener(v -> connect.onSend(textView.getText().toString()));
+        send_btn.setOnClickListener(v -> {
+            String send = "|<>#~ --command ";
+            switch (command_state){
+                case 10:
+                    send += "10 --color '" + Integer.toString(red) + "," + Integer.toString(green) + "," + Integer.toString(blue) + "'";
+                    break;
+                case 20:
+                    send += "20";
+                    break;
+                case 30:
+                    send += "30 --bright " + Float.toString(brightness);
+                    break;
+            }
+            send += " ~#><|";
+            connect.onSend(send);
+
+        });
         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         this.startActivityForResult(enableBtIntent, 1);
+
+        red = SaveAndLoad.getInt(this, "red_main");
+        green = SaveAndLoad.getInt(this, "green_main");
+        blue = SaveAndLoad.getInt(this, "blue_main");
+
+        img_btn = findViewById(R.id.main_color_picker);
+        img_btn.setBackgroundColor(Color.rgb(red,green,blue));
+        img_btn.setOnClickListener(v ->{
+            final ColorPicker cp = new ColorPicker(MainActivity.this, red, green, blue);
+            cp.show();
+            Button okColorBtn = cp.findViewById(R.id.okColorButton);
+            okColorBtn.setOnClickListener(v2 ->{
+                red = cp.getRed();
+                green = cp.getGreen();
+                blue = cp.getBlue();
+                img_btn.setBackgroundColor(android.graphics.Color.rgb(red, green, blue));
+                SaveAndLoad.SaveInt(this, "red_main", red);
+                SaveAndLoad.SaveInt(this, "green_main", green);
+                SaveAndLoad.SaveInt(this, "blue_main", blue);
+                cp.dismiss();
+            });
+        });
+        brightness_radio_btn = findViewById(R.id.radio_brightness);
+
+
+        radioGroup = findViewById(R.id.r_group);
+        radioGroup.check(R.id.radio_color);
+        brightness_radio_btn.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if(brightness_radio_btn.isChecked()){
+                radioGroup.setOnCheckedChangeListener(null);
+                radioGroup.clearCheck();
+                command_state = 30;
+                radioGroup.setOnCheckedChangeListener(checkChangeListener);
+            }
+        });
+
+        brightness_seekbar = findViewById(R.id.brightness_seekbar);
+        brightness_seekbar.setMax(10000);
+        brightness_seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                brightness = progress * 0.0001f;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        radioGroup.setOnCheckedChangeListener(checkChangeListener);
+
+        duration = SaveAndLoad.getInt(this, "duration");
+        duration_btn = findViewById(R.id.duration);
+        duration_btn.setText(formatDuration(duration));
+        duration_btn.setOnClickListener(v ->  {
+            final PickDuration pickDuration = new PickDuration(this, duration, (seconds) -> {
+
+                duration_btn.setText(formatDuration(seconds));
+                duration = seconds;
+                SaveAndLoad.SaveInt(this, "duration", duration);
+            });
+            pickDuration.show();
+
+        });
+
+
     }
+    public static String formatDuration(long duration) {
+        long seconds = duration;
+        long absSeconds = Math.abs(seconds);
+        String positive = String.format(
+                "%d:%02d:%02d",
+                absSeconds / 3600,
+                (absSeconds % 3600) / 60,
+                absSeconds % 60);
+        return seconds < 0 ? "-" + positive : positive;
+    }
+
+    private RadioGroup.OnCheckedChangeListener checkChangeListener = (group, checkedId) -> {
+        switch (checkedId){
+            case R.id.color_btn:
+                command_state = 10;
+                break;
+            case R.id.radio_iconshow:
+                command_state = 20;
+                break;
+        }
+        if(! (checkedId== -1)){
+
+            brightness_radio_btn.setChecked(false);
+        }
+
+    };
 
     @Override
     public void callback(int status){

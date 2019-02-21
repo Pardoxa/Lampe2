@@ -23,30 +23,73 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/send"
                 android:text="send"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/duration" />
         </LinearLayout>
 
-        <EditText
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/send_textview"
-            android:text="@string/app_name" />
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/main_color_picker"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"/>
+
+
+        </LinearLayout>
+
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <RadioGroup
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <RadioButton
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    >
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="set brightness"
+                        android:id="@+id/radio_brightness"/>
+                    <SeekBar
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/brightness_seekbar"
+                        />
+                </LinearLayout>
+                <RadioGroup
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/radio_sendText"
-                    android:text="send text"/>
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/radio_iconshow"
-                    android:text="icon show"/>
-            </RadioGroup>
+                    android:id="@+id/r_group">
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/radio_color"
+                        android:text="color"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/radio_iconshow"
+                        android:text="icon show"/>
+
+
+                </RadioGroup>
+            </LinearLayout>
+
+
+
+
         </ScrollView>
     </LinearLayout>
 
