@@ -42,6 +42,24 @@
 
 
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            >
+            <TextView
+                android:paddingStart="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="brightness"
+                android:id="@+id/radio_brightness"/>
+            <SeekBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/brightness_seekbar"
+                />
+        </LinearLayout>
 
         <ScrollView
             android:layout_width="match_parent"
@@ -50,23 +68,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    >
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="set brightness"
-                        android:id="@+id/radio_brightness"/>
-                    <SeekBar
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/brightness_seekbar"
-                        />
-                </LinearLayout>
+
                 <RadioGroup
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -82,7 +84,11 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/radio_iconshow"
                         android:text="icon show"/>
-
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/radio_demo"
+                        android:text="demo"/>
 
                 </RadioGroup>
             </LinearLayout>

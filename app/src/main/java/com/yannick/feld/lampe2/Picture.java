@@ -1,6 +1,7 @@
 package com.yannick.feld.lampe2;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -39,6 +40,8 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     private int save = 0;
     private bluetooth_connect connect;
     private int old_x = -1, old_y = -1;
+    private float brightness;
+    private int duration;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -135,6 +138,9 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent intent = getIntent();
+        brightness = intent.getFloatExtra("bright", 0.0f);
+        duration = intent.getIntExtra("duration", 0);
 
         setContentView(R.layout.activity_picture);
         connect = new bluetooth_connect(this,this, this);
@@ -243,17 +249,21 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         }
         send_btn = findViewById(R.id.send_btn);
         send_btn.setOnClickListener(v ->{
-            String data = "|<>#~ --command 1 --picture '";
+            String data = "|<>#~ --command 30 --dur " + duration + " --bright " + brightness + " --picture '";
             for(int x = 0; x < 16; x++){
                 for(int y = 0; y < 16; y++){
                     int p = pixel.getPixel(x,y);
                     int R = (p >> 16) & 0xff;
                     int G = (p >> 8) & 0xff;
                     int B = p & 0xff;
-                    data += "{" + Integer.toString(R) + "," + Integer.toString(G) + "," + Integer.toString(B) + "}";
+                    data +=  Integer.toString(R) + "," + Integer.toString(G) + "," + Integer.toString(B);
+                    if(x != 15 || y != 15){
+                        data += "#";
+                    }
                 }
             }
             data += "' ~#><|";
+            Toast.makeText(this, "connecting", Toast.LENGTH_SHORT).show();
             connect.onSend(data);
         });
     }

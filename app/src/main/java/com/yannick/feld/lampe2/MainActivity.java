@@ -2,6 +2,7 @@ package com.yannick.feld.lampe2;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -52,8 +53,8 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     private int red,green,blue;
     private int command_state = 0;
     private float brightness = 0;
-    private RadioButton brightness_radio_btn;
     private SeekBar brightness_seekbar;
+    Context context;
 
 
 
@@ -136,6 +137,8 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         // Picture Activity
         picture_btn.setOnClickListener(v -> {
             Intent i = new Intent(this, Picture.class);
+            i.putExtra("duration",duration);
+            i.putExtra("bright", brightness);
             startActivity(i);
         });
 
@@ -156,19 +159,20 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         registerReceiver(connect.mReceiver, filter);
         send_btn = findViewById(R.id.send);
         send_btn.setOnClickListener(v -> {
-            String send = "|<>#~ --command ";
+            String send = "|<>#~ --dur " + duration + " --bright " + Float.toString(brightness) + " --command ";
             switch (command_state){
-                case 10:
-                    send += "10 --color '" + Integer.toString(red) + "," + Integer.toString(green) + "," + Integer.toString(blue) + "'";
+                case 0:
+                    send += "0 --color '" + Integer.toString(red) + "," + Integer.toString(green) + "," + Integer.toString(blue) + "'";
                     break;
                 case 20:
-                    send += "20";
+                case 40:
+                    send += Integer.toString(command_state);
                     break;
-                case 30:
-                    send += "30 --bright " + Float.toString(brightness);
-                    break;
+
+
             }
             send += " ~#><|";
+            Toast.makeText(this,"connecting",Toast.LENGTH_SHORT).show();
             connect.onSend(send);
 
         });
@@ -196,26 +200,24 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 cp.dismiss();
             });
         });
-        brightness_radio_btn = findViewById(R.id.radio_brightness);
+
 
 
         radioGroup = findViewById(R.id.r_group);
         radioGroup.check(R.id.radio_color);
-        brightness_radio_btn.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if(brightness_radio_btn.isChecked()){
-                radioGroup.setOnCheckedChangeListener(null);
-                radioGroup.clearCheck();
-                command_state = 30;
-                radioGroup.setOnCheckedChangeListener(checkChangeListener);
-            }
-        });
+
+        context = this;
+
 
         brightness_seekbar = findViewById(R.id.brightness_seekbar);
         brightness_seekbar.setMax(10000);
+        brightness = 0.0001f * SaveAndLoad.getInt(this, "progress");
+        brightness_seekbar.setProgress(SaveAndLoad.getInt(this,"progress"));
         brightness_seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 brightness = progress * 0.0001f;
+                SaveAndLoad.SaveInt(context, "progress", progress);
             }
 
             @Override
@@ -228,6 +230,8 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
 
             }
         });
+
+        command_state = SaveAndLoad.getInt(this, "command");
 
         radioGroup.setOnCheckedChangeListener(checkChangeListener);
 
@@ -258,19 +262,22 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         return seconds < 0 ? "-" + positive : positive;
     }
 
+
+
     private RadioGroup.OnCheckedChangeListener checkChangeListener = (group, checkedId) -> {
         switch (checkedId){
-            case R.id.color_btn:
-                command_state = 10;
+            case R.id.radio_color:
+                command_state = 0;
                 break;
             case R.id.radio_iconshow:
                 command_state = 20;
                 break;
+            case R.id.radio_demo:
+                command_state = 40;
+                break;
         }
-        if(! (checkedId== -1)){
+        SaveAndLoad.SaveInt(this,"command", command_state);
 
-            brightness_radio_btn.setChecked(false);
-        }
 
     };
 
