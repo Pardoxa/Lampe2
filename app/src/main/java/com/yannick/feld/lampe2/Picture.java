@@ -1,5 +1,7 @@
 package com.yannick.feld.lampe2;
 
+import android.bluetooth.BluetoothAdapter;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -24,7 +26,7 @@ import static android.view.MotionEvent.ACTION_MOVE;
 import static android.view.MotionEvent.ACTION_UP;
 
 
-public class Picture extends AppCompatActivity {
+public class Picture extends AppCompatActivity implements IconChangeCallback{
 
     private Button chess_btn, fill, send_btn;
     private ImageButton color_btn;
@@ -135,7 +137,9 @@ public class Picture extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_picture);
-        connect = new bluetooth_connect(this,this, null);
+        connect = new bluetooth_connect(this,this, this);
+        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(connect.mReceiver, filter);
         img = findViewById(R.id.img);
 
         //Get size of Screen for adjusting the hight.
@@ -253,4 +257,22 @@ public class Picture extends AppCompatActivity {
             connect.onSend(data);
         });
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // Unregister broadcast listeners
+        unregisterReceiver(connect.mReceiver);
+    }
+
+    @Override
+    public void toastCallBack(String toSend){
+        runOnUiThread(() -> Toast.makeText(this, toSend, Toast.LENGTH_SHORT).show());
+    }
+    @Override
+    public void callback(int status) {
+
+    }
+
 }

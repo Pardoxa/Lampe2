@@ -1,7 +1,9 @@
 package com.yannick.feld.lampe2;
 
 import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.ActivityCompat;
@@ -24,6 +26,7 @@ import java.util.List;
 
 interface IconChangeCallback {
     void callback(int status);
+    void toastCallBack(String toShow);
 }
 
 public class MainActivity extends AppCompatActivity implements IconChangeCallback{
@@ -33,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     private EditText textView;
     private int scanState = -1;
     private bluetooth_connect connect = null;
+
 
 
     // https://stackoverflow.com/questions/33162152/storage-permission-error-in-marshmallow/41221852#41221852
@@ -85,6 +89,8 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 break;
             default:
                 if(scanState == -1){
+                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    this.startActivityForResult(enableBtIntent, 1);
                     connect.findRaspberry();
                 }else{
                     Toast.makeText(this, "invalid",Toast.LENGTH_SHORT).show();
@@ -126,11 +132,14 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         }
 
         checkPermissions();
-        connect = new bluetooth_connect(this,this, this::callback);
+        connect = new bluetooth_connect(this,this, this);
+        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(connect.mReceiver, filter);
         send_btn = findViewById(R.id.send);
         textView = findViewById(R.id.send_textview);
         send_btn.setOnClickListener(v -> connect.onSend(textView.getText().toString()));
-
+        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        this.startActivityForResult(enableBtIntent, 1);
     }
 
     @Override
@@ -152,13 +161,20 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     }
 
     @Override
+    public void toastCallBack(String toSend){
+        runOnUiThread(() -> Toast.makeText(this, toSend, Toast.LENGTH_SHORT).show());
+    }
+
+    @Override
     public void onPause(){
         super.onPause();
-       /* try{
 
-        }catch (Exception e){
-            e.printStackTrace();
-        }*/
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
 
+        // Unregister broadcast listeners
+        unregisterReceiver(connect.mReceiver);
     }
 }

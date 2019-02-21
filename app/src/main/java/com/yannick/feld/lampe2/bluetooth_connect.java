@@ -3,8 +3,11 @@ package com.yannick.feld.lampe2;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.Set;
 
@@ -15,25 +18,28 @@ public class bluetooth_connect {
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothDevice mDevice;
     private IconChangeCallback callback;
+    private final static int REQUEST_ENABLE_BT=1;
 
 
     public void findRaspberry() {
-        if(callback != null)
-            callback.callback(1);
-        boolean found = false;
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter
-                .getBondedDevices();
-        for (BluetoothDevice device : pairedDevices) {
-            if(device.getName().equals("unit2")){
-                if(callback != null)
-                    callback.callback(0);
-                this.mDevice=device;
-                found = true;
-            }
+        if(mBluetoothAdapter != null){
+            if(callback != null)
+                callback.callback(1);
+            boolean found = false;
+            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter
+                    .getBondedDevices();
+            for (BluetoothDevice device : pairedDevices) {
+                if(device.getName().equals("unit2")){
+                    if(callback != null)
+                        callback.callback(1);
+                    this.mDevice=device;
+                    found = true;
+                }
 
-        }
-        if(!found){
-            callback.callback(-1);
+            }
+            if(!found && callback != null){
+                callback.callback(-1);
+            }
         }
     }
 
@@ -48,6 +54,10 @@ public class bluetooth_connect {
         if (!mBluetoothAdapter.isEnabled()) {
 
             Log.d(TAG, "Bluetooth not enabled");
+            if (!mBluetoothAdapter.isEnabled())
+            {
+
+            }
             if(callback != null)
                 callback.callback(-1);
         }
@@ -58,8 +68,12 @@ public class bluetooth_connect {
 
 
     public void onSend(String message) {
+        if(mBluetoothAdapter != null && mDevice != null){
+            new MessageThread(mDevice, message, callback).start();
+        }else{
+            Toast.makeText(context, "Bluetooth disconnected", Toast.LENGTH_SHORT).show();
+        }
 
-        new MessageThread(mDevice, message).start();
     }
 
 
@@ -71,6 +85,36 @@ public class bluetooth_connect {
 
         initBluetooth();
         findRaspberry();
+        onSend("echo");
 
     }
+
+    public final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+
+            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+                        BluetoothAdapter.ERROR);
+                switch (state) {
+                    case BluetoothAdapter.STATE_OFF:
+                    case BluetoothAdapter.STATE_TURNING_OFF:
+                        if(callback != null){
+                            callback.callback(-1);
+                        }
+                        mDevice = null;
+                        mBluetoothAdapter = null;
+                        break;
+                    case BluetoothAdapter.STATE_ON:
+                        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                        initBluetooth();
+                        findRaspberry();
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_ON:
+                        break;
+                }
+            }
+        }
+    };
 }
