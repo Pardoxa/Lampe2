@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
 
     public static boolean is_night = true;
     private Button picture_btn, send_btn, duration_btn;
-    private int duration;
+    private int duration, rotation;
     private RadioGroup radioGroup;
     private int scanState = -1;
     private bluetooth_connect connect = null;
@@ -95,7 +95,8 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
-
+        rotation = SaveAndLoad.getInt(this, "rotation");
+        menu.findItem(R.id.rotation).setTitle(PickRotation.displayed[rotation]);
         return true;
     }
 
@@ -106,6 +107,15 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 is_night = !is_night;
                 SaveAndLoad.SaveBoolean(this, "d_n_mode", is_night);
                 super.recreate();
+                break;
+            case R.id.rotation:
+                final PickRotation pickRotation = new PickRotation(this, rotation, (rotation) -> {
+
+                    this.rotation = rotation;
+                    (item).setTitle(PickRotation.displayed[rotation]);
+                    SaveAndLoad.SaveInt(this, "rotation", rotation);
+                });
+                pickRotation.show();
                 break;
             default:
                 if(scanState == -1){
@@ -171,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 case 43:
                 case 44:
                 case 45:
+                case -1:
                     send += Integer.toString(command_state);
                     break;
                 case 50:
@@ -274,6 +285,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
 
     private RadioGroup.OnCheckedChangeListener checkChangeListener = (group, checkedId) -> {
         switch (checkedId){
+            // 30 = draw
             case R.id.radio_color:
                 command_state = 0;
                 break;
@@ -300,6 +312,13 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 break;
             case R.id.radio_eye:
                 command_state = 50;
+                break;
+            case R.id.radio_shutdown:
+                command_state = -1;
+                Toast toast = Toast.makeText(this, "This will shutdown the Raspberry Pi!", Toast.LENGTH_SHORT);
+                TextView v = toast.getView().findViewById(android.R.id.message);
+                v.setTextColor(Color.RED);
+                toast.show();
                 break;
 
         }

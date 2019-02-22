@@ -8,42 +8,38 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.NumberPicker;
 
-interface PickInterface {
-    void setDuration(int seconds);
-}
-
-public class PickDuration extends Dialog implements
-        android.view.View.OnClickListener {
-
+public class PickRotation extends Dialog implements
+        android.view.View.OnClickListener{
     public Activity c;
-    private NumberPicker np_hours, np_minutes, np_seconds;
     public Button yes, no;
     private PickInterface pickInterface;
-    private int duration;
+    private NumberPicker np_rotation;
+    private int rotation;
+    public static final String[] displayed = {"0°", "90°", "180°", "270°"};
 
-    public PickDuration(Activity a, int duration, PickInterface pickInterface) {
+    public PickRotation(Activity a, int rotation, PickInterface pickInterface) {
         super(a);
         // TODO Auto-generated constructor stub
         this.c = a;
         this.pickInterface = pickInterface;
-        this.duration = duration;
+        this.rotation = rotation;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.pick_duration);
+        setContentView(R.layout.pick_rotation);
         yes = findViewById(R.id.pick_duration_yes);
         no = findViewById(R.id.pick_duration_no);
-        np_hours = findViewById(R.id.np_stunden);
-        np_minutes = findViewById(R.id.np_minuten);
-        np_seconds = findViewById(R.id.np_sekunden);
-        np_hours.setMinValue(0); np_minutes.setMinValue(0); np_seconds.setMinValue(0);
-        np_hours.setMaxValue(23); np_minutes.setMaxValue(59); np_seconds.setMaxValue(59);
-        np_hours.setValue(duration / 3600);
-        np_minutes.setValue((duration% 3600) / 60);
-        np_seconds.setValue(duration % 60);
+        np_rotation = findViewById(R.id.np_rotation);
+
+        np_rotation.setMinValue(0);
+        np_rotation.setMaxValue(3);
+
+        np_rotation.setDisplayedValues(displayed);
+        np_rotation.setValue(rotation);
+
         yes.setOnClickListener(this);
         no.setOnClickListener(this);
 
@@ -53,7 +49,7 @@ public class PickDuration extends Dialog implements
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.pick_duration_yes:
-                pickInterface.setDuration(np_hours.getValue() * 3600 + np_minutes.getValue() * 60 + np_seconds.getValue());
+                pickInterface.setDuration(np_rotation.getValue());
                 break;
             case R.id.pick_duration_no:
                 dismiss();

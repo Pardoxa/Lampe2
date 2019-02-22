@@ -119,6 +119,14 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/radio_eye"
                         android:text="eye"/>
+                    <RadioButton
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/radio_shutdown"
+                        android:text="shutdown"
+                        android:textColor="@color/color_shutdown"/>
+
 
                 </RadioGroup>
             </LinearLayout>

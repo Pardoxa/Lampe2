@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/rotation"
+        android:title="rotation"
+        app:showAsAction="ifRoom">
+
+    </item>
+    <item
         android:id="@+id/mode_toggle"
         android:title="toggle-mode"
         android:icon="@drawable/ic_toggle_daytime_24dp"
