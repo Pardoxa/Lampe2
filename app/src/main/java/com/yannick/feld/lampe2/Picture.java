@@ -3,9 +3,11 @@ package com.yannick.feld.lampe2;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +21,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -160,6 +163,11 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         int width = size.x;
         int height = size.y;
         minimum = Math.min(width, height);
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE)
+            minimum *= 0.5;
+
+
 
         Log.d("minimum", Integer.toString(minimum));
 
@@ -203,6 +211,8 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         });
 
         img.getLocationOnScreen(img_viewCoords);
+
+
         img.setOnTouchListener((v, event) ->
              {
 
@@ -212,8 +222,9 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
 
                 float imageX = touchX - img_viewCoords[0]; // viewCoords[0] is the X coordinate
                 float imageY = touchY - img_viewCoords[1]; // viewCoords[1] is the y coordinate
-                imageX /= img.getWidth();
-                imageY /= img.getHeight();
+                imageX /= img.getMeasuredWidth(); //img.getWidth();
+                imageY /= img.getMeasuredHeight(); //img.getHeight();
+
                 int x = (int) (imageX * 16);
                 int y = (int) (imageY * 16);
                 x = Math.min(x, max_size);

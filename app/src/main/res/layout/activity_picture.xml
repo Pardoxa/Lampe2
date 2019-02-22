@@ -49,7 +49,6 @@
             </LinearLayout>
 
         </LinearLayout>
-
         <ImageView
             android:layout_margin="10dp"
             android:layout_width="match_parent"
