@@ -173,6 +173,9 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 case 45:
                     send += Integer.toString(command_state);
                     break;
+                case 50:
+                    send += "50 --color '" + Integer.toString(red) + "," + Integer.toString(green) + "," + Integer.toString(blue) + "'";
+                    break;
 
 
             }
@@ -294,6 +297,9 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 break;
             case R.id.radio_gradient:
                 command_state = 45;
+                break;
+            case R.id.radio_eye:
+                command_state = 50;
                 break;
 
         }

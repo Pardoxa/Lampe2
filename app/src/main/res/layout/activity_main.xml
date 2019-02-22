@@ -114,6 +114,11 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/radio_checker"
                         android:text="checker"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/radio_eye"
+                        android:text="eye"/>
 
                 </RadioGroup>
             </LinearLayout>
