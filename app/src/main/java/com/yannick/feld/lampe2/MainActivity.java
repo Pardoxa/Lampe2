@@ -149,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
             Intent i = new Intent(this, Picture.class);
             i.putExtra("duration",duration);
             i.putExtra("bright", brightness);
+            i.putExtra("rotation", rotation);
             startActivity(i);
         });
 
@@ -169,11 +170,17 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         registerReceiver(connect.mReceiver, filter);
         send_btn = findViewById(R.id.send);
         send_btn.setOnClickListener(v -> {
-            String send = "|<>#~ --dur " + duration + " --bright " + Float.toString(brightness) + " --command ";
+            String send = "|<>#~ --dur " + duration + " --bright " + Float.toString(brightness)
+                        + " --rot " + rotation + " --command ";
             switch (command_state){
                 case 0:
-                    send += "0 --color '" + Integer.toString(red) + "," + Integer.toString(green) + "," + Integer.toString(blue) + "'";
+                    send += "0 --color '" + red + "," + green + "," + blue + "'";
                     break;
+                case -2:
+                    send = "|<>#~ --dur " + 1 + " --bright " + Float.toString(brightness)
+                            + " --rot " + rotation + " --command 0 --color '0,0,0'";
+                    break;
+                case -1:
                 case 20:
                 case 40:
                 case 41:
@@ -181,7 +188,10 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 case 43:
                 case 44:
                 case 45:
-                case -1:
+                case 60:
+                case 70:
+                case 80:
+                case 90:
                     send += Integer.toString(command_state);
                     break;
                 case 50:
@@ -320,7 +330,21 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 v.setTextColor(Color.RED);
                 toast.show();
                 break;
-
+            case R.id.radio_candle:
+                command_state = 60;
+                break;
+            case R.id.radio_stars:
+                command_state = 70;
+                break;
+            case R.id.radio_rainbow:
+                command_state = 80;
+                break;
+            case R.id.radio_game_of_life:
+                command_state = 90;
+                break;
+            case R.id.radio_cancel:
+                command_state = -2;
+                break;
         }
         SaveAndLoad.SaveInt(this,"command", command_state);
 

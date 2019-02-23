@@ -49,7 +49,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     private bluetooth_connect connect;
     private int old_x = -1, old_y = -1;
     private float brightness;
-    private int duration;
+    private int duration, rotation;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -149,6 +149,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         Intent intent = getIntent();
         brightness = intent.getFloatExtra("bright", 0.0f);
         duration = intent.getIntExtra("duration", 0);
+        rotation = intent.getIntExtra("rotation", 0);
 
         setContentView(R.layout.activity_picture);
         connect = new bluetooth_connect(this,this, this);
@@ -278,7 +279,8 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         }
         send_btn = findViewById(R.id.send_btn);
         send_btn.setOnClickListener(v ->{
-            String data = "|<>#~ --command 30 --dur " + duration + " --bright " + brightness + " --picture '";
+            String data = "|<>#~ --command 30 --dur " + duration + " --bright " + brightness
+                        + " --rot " + rotation + " --picture '";
             for(int x = 0; x < 16; x++){
                 for(int y = 0; y < 16; y++){
                     int p = pixel.getPixel(x,y);
