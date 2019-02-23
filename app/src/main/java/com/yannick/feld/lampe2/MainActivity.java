@@ -192,6 +192,10 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 case 70:
                 case 80:
                 case 90:
+                case 100:
+                case 110:
+                case 120:
+                case 130:
                     send += Integer.toString(command_state);
                     break;
                 case 50:
@@ -325,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 break;
             case R.id.radio_shutdown:
                 command_state = -1;
-                Toast toast = Toast.makeText(this, "This will shutdown the Raspberry Pi!", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(this, "Sending this will shutdown the Raspberry Pi!", Toast.LENGTH_SHORT);
                 TextView v = toast.getView().findViewById(android.R.id.message);
                 v.setTextColor(Color.RED);
                 toast.show();
@@ -344,6 +348,18 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 break;
             case R.id.radio_cancel:
                 command_state = -2;
+                break;
+            case R.id.radio_drop:
+                command_state = 100;
+                break;
+            case R.id.radio_rainbow_dot:
+                command_state = 110;
+                break;
+            case R.id.radio_cross:
+                command_state = 120;
+                break;
+            case R.id.radio_clock:
+                command_state = 130;
                 break;
         }
         SaveAndLoad.SaveInt(this,"command", command_state);
