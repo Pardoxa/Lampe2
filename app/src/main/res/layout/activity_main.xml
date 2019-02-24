@@ -82,6 +82,11 @@
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:id="@+id/radio_hue_wave"
+                        android:text="hue wave"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:id="@+id/radio_iconshow"
                         android:text="icon show"/>
                     <RadioButton

@@ -7,30 +7,21 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
-import android.widget.Chronometer;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.pes.androidmaterialcolorpickerdialog.ColorPicker;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -196,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 case 110:
                 case 120:
                 case 130:
+                case 140:
                     send += Integer.toString(command_state);
                     break;
                 case 50:
@@ -219,19 +211,16 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         img_btn = findViewById(R.id.main_color_picker);
         img_btn.setBackgroundColor(Color.rgb(red,green,blue));
         img_btn.setOnClickListener(v ->{
-            final ColorPicker cp = new ColorPicker(MainActivity.this, red, green, blue);
-            cp.show();
-            Button okColorBtn = cp.findViewById(R.id.okColorButton);
-            okColorBtn.setOnClickListener(v2 ->{
-                red = cp.getRed();
-                green = cp.getGreen();
-                blue = cp.getBlue();
-                img_btn.setBackgroundColor(android.graphics.Color.rgb(red, green, blue));
-                SaveAndLoad.SaveInt(this, "red_main", red);
-                SaveAndLoad.SaveInt(this, "green_main", green);
-                SaveAndLoad.SaveInt(this, "blue_main", blue);
-                cp.dismiss();
+            final PickColor pickColor =
+                    new PickColor(this, Color.rgb(red, green, blue),
+                            SaveAndLoad.getBoolean(context,"HSV"), (color, hsv) -> {
+               red = Color.red(color);
+               green = Color.green(color);
+               blue = Color.blue(color);
+               img_btn.setBackgroundColor(color);
+               SaveAndLoad.SaveBoolean(context, "HSV", hsv);
             });
+            pickColor.show();
         });
 
 
@@ -360,6 +349,9 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 break;
             case R.id.radio_clock:
                 command_state = 130;
+                break;
+            case R.id.radio_hue_wave:
+                command_state = 140;
                 break;
         }
         SaveAndLoad.SaveInt(this,"command", command_state);

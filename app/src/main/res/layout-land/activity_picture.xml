@@ -60,7 +60,6 @@
                     android:layout_margin="10dp"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:background="@color/materialcolorpicker__black"
                     android:id="@+id/color_btn"/>
             </LinearLayout>
 

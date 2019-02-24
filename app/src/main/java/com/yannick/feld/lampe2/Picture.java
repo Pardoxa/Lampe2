@@ -7,8 +7,6 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.Rect;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,16 +16,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.pes.androidmaterialcolorpickerdialog.ColorPicker;
-
 import static android.view.MotionEvent.ACTION_DOWN;
 import static android.view.MotionEvent.ACTION_MOVE;
 import static android.view.MotionEvent.ACTION_UP;
@@ -186,21 +179,21 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         color_btn = findViewById(R.id.color_btn);
         color_btn.setBackgroundColor(Color.rgb(red, green, blue));
         color_btn.setOnClickListener(v ->{
-            final ColorPicker cp = new ColorPicker(Picture.this, red, green, blue);
-            cp.show();
-            Button okColorBtn = cp.findViewById(R.id.okColorButton);
-            okColorBtn.setOnClickListener(v2 ->{
-                red = cp.getRed();
-                green = cp.getGreen();
-                blue = cp.getBlue();
-                color_btn.setBackgroundColor(android.graphics.Color.rgb(red, green, blue));
-                SaveAndLoad.SaveInt(this, "red", red);
-                SaveAndLoad.SaveInt(this, "green", green);
-                SaveAndLoad.SaveInt(this, "blue", blue);
-                old_x = -1;
-                old_y = -1;
-                cp.dismiss();
-            });
+            final PickColor pickColor = new PickColor(this,
+                    Color.rgb(red, green, blue), SaveAndLoad.getBoolean(this, "HSV"),
+                    (color, hsv) -> {
+                        SaveAndLoad.SaveBoolean(this, "HSV", hsv);
+                        color_btn.setBackgroundColor(color);
+                        red = Color.red(color);
+                        green = Color.green(color);
+                        blue = Color.blue(color);
+                        SaveAndLoad.SaveInt(this, "red", red);
+                        SaveAndLoad.SaveInt(this, "green", green);
+                        SaveAndLoad.SaveInt(this, "blue", blue);
+                        old_x = -1;
+                        old_y = -1;
+                    });
+            pickColor.show();
         });
 
         fill = findViewById(R.id.fill_color_btn);
