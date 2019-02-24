@@ -27,7 +27,7 @@ public class PickColor extends Dialog implements
     private int color;
     private ImageView img;
     private Switch rgb_hsv;
-    private final int hsv_precision = 10000;
+    private final int hsv_precision = 100000;
     private boolean use_hsv;
 
     public PickColor(Activity a, int color,  boolean use_hsv, OnColorPicked pickInterface) {
