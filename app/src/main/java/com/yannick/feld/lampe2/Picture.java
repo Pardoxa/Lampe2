@@ -37,7 +37,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     private Bitmap pixel = Bitmap.createBitmap(16,16, Bitmap.Config.ARGB_4444);
     private int minimum = 0;
     private final int max_size = 15;
-    private int red, green, blue;
+    private int color;
     private int save = 0;
     private bluetooth_connect connect;
     private int old_x = -1, old_y = -1;
@@ -173,23 +173,18 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         chess_btn = findViewById(R.id.chess_btn);
         chess_btn.setOnClickListener(v -> reset_chess());
 
-        red = SaveAndLoad.getInt(this, "red");
-        green = SaveAndLoad.getInt(this, "green");
-        blue = SaveAndLoad.getInt(this, "blue");
+        color = SaveAndLoad.getInt(this,"color_picture", Color.BLACK);
+
         color_btn = findViewById(R.id.color_btn);
-        color_btn.setBackgroundColor(Color.rgb(red, green, blue));
+        color_btn.setBackgroundColor(color);
         color_btn.setOnClickListener(v ->{
-            final PickColor pickColor = new PickColor(this,
-                    Color.rgb(red, green, blue), SaveAndLoad.getBoolean(this, "HSV"),
+            final PickColor pickColor = new PickColor(this, color,
+                                        SaveAndLoad.getBoolean(this, "HSV"),
                     (color, hsv) -> {
                         SaveAndLoad.SaveBoolean(this, "HSV", hsv);
                         color_btn.setBackgroundColor(color);
-                        red = Color.red(color);
-                        green = Color.green(color);
-                        blue = Color.blue(color);
-                        SaveAndLoad.SaveInt(this, "red", red);
-                        SaveAndLoad.SaveInt(this, "green", green);
-                        SaveAndLoad.SaveInt(this, "blue", blue);
+                        this.color = color;
+                        SaveAndLoad.SaveInt(this, "color_picture", color);
                         old_x = -1;
                         old_y = -1;
                     });
@@ -199,7 +194,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         fill = findViewById(R.id.fill_color_btn);
         fill.setOnClickListener(v ->{
             SaveAndLoad.saveBitmap(this, -1, pixel);
-            pixel.eraseColor(Color.rgb(red, green, blue));
+            pixel.eraseColor(color);
             setImage();
             SaveAndLoad.saveBitmap(this, -2, pixel);
         });
@@ -240,7 +235,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                      }
                      Log.d(Integer.toString(x),Integer.toString(y));
                      if(old_x != x || old_y != y){
-                         pixel.setPixel(x, y, android.graphics.Color.rgb(red, green, blue));
+                         pixel.setPixel(x, y, color);
                          old_x = x;
                          old_y = y;
                          setImage();
@@ -249,14 +244,11 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                          SaveAndLoad.saveBitmap(this, -2, pixel);
                      }
                  }else{
-                     int p = pixel.getPixel(x,y);
-                     red = (p >> 16) & 0xff;
-                     green = (p >> 8) & 0xff;
-                     blue = p & 0xff;
-                     color_btn.setBackgroundColor(p);
-                     SaveAndLoad.SaveInt(this, "red", red);
-                     SaveAndLoad.SaveInt(this, "green", green);
-                     SaveAndLoad.SaveInt(this, "blue", blue);
+
+                     color = pixel.getPixel(x,y);
+                     color_btn.setBackgroundColor(color);
+                     SaveAndLoad.SaveInt(this, "color_picture", color);
+
                  }
 
                 return true;

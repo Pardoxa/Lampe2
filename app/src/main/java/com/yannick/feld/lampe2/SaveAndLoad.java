@@ -45,8 +45,12 @@ public final class SaveAndLoad {
     }
 
     public static int getInt(Context context, String Key){
+        return getInt(context, Key, 0);
+    }
+
+    public static int getInt(Context context, String Key, int defValue){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getInt(Key,0);
+        return prefs.getInt(Key,defValue);
     }
 
     public static void saveBitmap(Context context, int Key, Bitmap bitmap){

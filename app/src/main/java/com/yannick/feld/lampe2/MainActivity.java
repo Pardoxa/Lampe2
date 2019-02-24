@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatDelegate;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     private int scanState = -1;
     private bluetooth_connect connect = null;
     private ImageButton img_btn;
-    private int red,green,blue;
+    private int color;
     private int command_state = 0;
     private float brightness = 0;
     private SeekBar brightness_seekbar;
@@ -161,11 +162,14 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         registerReceiver(connect.mReceiver, filter);
         send_btn = findViewById(R.id.send);
         send_btn.setOnClickListener(v -> {
+            float hsv[] = new float[3];
+            Color.colorToHSV(color, hsv);
+            Log.d("HSV 0", Float.toString(hsv[0]));
             String send = "|<>#~ --dur " + duration + " --bright " + Float.toString(brightness)
                         + " --rot " + rotation + " --command ";
             switch (command_state){
                 case 0:
-                    send += "0 --color '" + red + "," + green + "," + blue + "'";
+                    send += "0 --color '" + hsv[0] + "," + hsv[1] + "," + hsv[2] + "'";
                     break;
                 case -2:
                     send = "|<>#~ --dur " + 1 + " --bright " + Float.toString(brightness)
@@ -191,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                     send += Integer.toString(command_state);
                     break;
                 case 50:
-                    send += "50 --color '" + Integer.toString(red) + "," + Integer.toString(green) + "," + Integer.toString(blue) + "'";
+                    send += "50 --color '" + hsv[0] + "," + hsv[1] + "," + hsv[2] + "'";
                     break;
 
 
@@ -204,21 +208,19 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         this.startActivityForResult(enableBtIntent, 1);
 
-        red = SaveAndLoad.getInt(this, "red_main");
-        green = SaveAndLoad.getInt(this, "green_main");
-        blue = SaveAndLoad.getInt(this, "blue_main");
+        color = SaveAndLoad.getInt(this, "color_main", Color.BLACK);
+
 
         img_btn = findViewById(R.id.main_color_picker);
-        img_btn.setBackgroundColor(Color.rgb(red,green,blue));
+        img_btn.setBackgroundColor(color);
         img_btn.setOnClickListener(v ->{
             final PickColor pickColor =
-                    new PickColor(this, Color.rgb(red, green, blue),
+                    new PickColor(this, color,
                             SaveAndLoad.getBoolean(context,"HSV"), (color, hsv) -> {
-               red = Color.red(color);
-               green = Color.green(color);
-               blue = Color.blue(color);
+               this.color = color;
                img_btn.setBackgroundColor(color);
                SaveAndLoad.SaveBoolean(context, "HSV", hsv);
+               SaveAndLoad.SaveInt(context,"color_main", color);
             });
             pickColor.show();
         });
@@ -350,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
             case R.id.radio_clock:
                 command_state = 130;
                 break;
-            case R.id.radio_hue_wave:
+            case R.id.radio_hsv_wave:
                 command_state = 140;
                 break;
         }

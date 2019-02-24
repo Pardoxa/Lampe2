@@ -44,7 +44,7 @@ public class PickColor extends Dialog implements
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if(rgb_hsv.isChecked()){
                 float[] hsv = new float[3];
-                hsv[0] = s1.getProgress() / ((float) hsv_precision);
+                hsv[0] = 360 * s1.getProgress() / ((float) hsv_precision);
                 hsv[1] = s2.getProgress() / ((float) hsv_precision);
                 hsv[2] = s3.getProgress() / ((float) hsv_precision);
                 color = Color.HSVToColor(hsv);
@@ -78,7 +78,7 @@ public class PickColor extends Dialog implements
             s1.setMax(hsv_precision); s2.setMax(hsv_precision); s3.setMax(hsv_precision);
             float[] hsv = new float[3];
             Color.colorToHSV(color, hsv);
-            s1.setProgress((int)(hsv[0] * hsv_precision));
+            s1.setProgress((int)(hsv[0] * hsv_precision / 360));
             s2.setProgress((int)(hsv[1] * hsv_precision));
             s3.setProgress((int)(hsv[2] * hsv_precision));
         }else{

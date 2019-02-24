@@ -58,7 +58,8 @@
             android:layout_margin="10dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/color_btn"/>
+            android:id="@+id/color_btn"
+            android:background="#000000"/>
     </LinearLayout>
 
 
