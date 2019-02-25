@@ -30,19 +30,20 @@
         </LinearLayout>
 
 
-        <LinearLayout
+
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center">
+            android:gravity="center"
+            android:id="@+id/main_relative_layout_color_picker">
             <ImageButton
                 android:id="@+id/main_color_picker"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center"
                 android:background="#000000"/>
+        </RelativeLayout>
 
-
-        </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -83,6 +84,11 @@
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:id="@+id/radio_eye"
+                        android:text="eye"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:id="@+id/radio_hsv_wave"
                         android:text="hsv wave"/>
                     <RadioButton
@@ -120,11 +126,6 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/radio_checker"
                         android:text="checker"/>
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/radio_eye"
-                        android:text="eye"/>
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

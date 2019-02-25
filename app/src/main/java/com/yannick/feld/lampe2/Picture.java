@@ -43,6 +43,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     private int old_x = -1, old_y = -1;
     private float brightness;
     private int duration, rotation;
+    private Toast toast;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -140,12 +141,13 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
+        toast = Toast.makeText(this,"",Toast.LENGTH_SHORT);
         brightness = intent.getFloatExtra("bright", 0.0f);
         duration = intent.getIntExtra("duration", 0);
         rotation = intent.getIntExtra("rotation", 0);
 
         setContentView(R.layout.activity_picture);
-        connect = new bluetooth_connect(this,this, this);
+        connect = new bluetooth_connect(this, this);
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(connect.mReceiver, filter);
         img = findViewById(R.id.img);
@@ -280,7 +282,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
             }
             data += "' ~#><|";
             Toast.makeText(this, "connecting", Toast.LENGTH_SHORT).show();
-            connect.onSend(data);
+            connect.onSend(data, true);
         });
 
         toggle = findViewById(R.id.picture_switch);
@@ -297,15 +299,20 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
 
     @Override
     public void onDestroy() {
+        toast.cancel();
         super.onDestroy();
-
         // Unregister broadcast listeners
         unregisterReceiver(connect.mReceiver);
     }
 
+
     @Override
     public void toastCallBack(String toSend){
-        runOnUiThread(() -> Toast.makeText(this, toSend, Toast.LENGTH_SHORT).show());
+        runOnUiThread(() -> {
+           // toast.cancel();
+            toast.setText(toSend);
+            toast.show();
+        });
     }
     @Override
     public void callback(int status) {

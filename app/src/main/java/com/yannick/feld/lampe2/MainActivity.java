@@ -19,7 +19,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,10 +44,12 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     private int scanState = -1;
     private bluetooth_connect connect = null;
     private ImageButton img_btn;
+    private RelativeLayout relativeLayout_img_btn;
     private int color;
     private int command_state = 0;
     private float brightness = 0;
     private SeekBar brightness_seekbar;
+    private Toast toast;
     Context context;
 
 
@@ -126,6 +130,8 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = this;
+        toast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
         is_night = SaveAndLoad.getBoolean(this, "d_n_mode");
         if(is_night){
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
@@ -157,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         }
 
         checkPermissions();
-        connect = new bluetooth_connect(this,this, this);
+        connect = new bluetooth_connect(this, this);
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(connect.mReceiver, filter);
         send_btn = findViewById(R.id.send);
@@ -202,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
             }
             send += " ~#><|";
             Toast.makeText(this,"connecting",Toast.LENGTH_SHORT).show();
-            connect.onSend(send);
+            connect.onSend(send, true);
 
         });
         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -210,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
 
         color = SaveAndLoad.getInt(this, "color_main", Color.BLACK);
 
-
+        relativeLayout_img_btn = findViewById(R.id.main_relative_layout_color_picker);
         img_btn = findViewById(R.id.main_color_picker);
         img_btn.setBackgroundColor(color);
         img_btn.setOnClickListener(v ->{
@@ -225,13 +231,12 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
             pickColor.show();
         });
 
-
+        command_state = SaveAndLoad.getInt(this, "command");
+        change_img_btn_size();
 
         radioGroup = findViewById(R.id.r_group);
-        radioGroup.check(R.id.radio_color);
-
-        context = this;
-
+        radioGroup.check(command_to_id());
+        radioGroup.setOnCheckedChangeListener(checkChangeListener);
 
         brightness_seekbar = findViewById(R.id.brightness_seekbar);
         brightness_seekbar.setMax(10000);
@@ -255,10 +260,6 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
             }
         });
 
-        command_state = SaveAndLoad.getInt(this, "command");
-
-        radioGroup.setOnCheckedChangeListener(checkChangeListener);
-
         duration = SaveAndLoad.getInt(this, "duration");
         duration_btn = findViewById(R.id.duration);
         duration_btn.setText(formatDuration(duration));
@@ -270,10 +271,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 SaveAndLoad.SaveInt(this, "duration", duration);
             });
             pickDuration.show();
-
         });
-
-
     }
     public static String formatDuration(long duration) {
         long seconds = duration;
@@ -286,7 +284,67 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         return seconds < 0 ? "-" + positive : positive;
     }
 
+    private void change_img_btn_size(){
+        LinearLayout.LayoutParams params =
+                (LinearLayout.LayoutParams) relativeLayout_img_btn.getLayoutParams();
+        final float scale = context.getResources().getDisplayMetrics().density;
+        switch(command_state){
+            case 0:
+            case 50:
+                // https://stackoverflow.com/questions/5255184/android-and-setting-width-and-height-programmatically-in-dp-units
+                params.height = (int) (100 * scale + 0.5f); // use dps
+                break;
+            default:
+                params.height = 0;
+        }
+        relativeLayout_img_btn.setLayoutParams(params);
+    }
 
+    private int command_to_id(){
+        switch (command_state){
+            case 0:
+                return R.id.radio_color;
+            case 20:
+                return R.id.radio_iconshow;
+            case 40:
+                return R.id.radio_demo;
+            case 41:
+                return R.id.radio_swirl;
+            case 42:
+                return R.id.radio_rainbow_search;
+            case 43:
+                return R.id.radio_tunnel;
+            case 44:
+                return R.id.radio_checker;
+            case 45:
+                return R.id.radio_gradient;
+            case 50:
+                return R.id.radio_eye;
+            case -1:
+                return R.id.radio_shutdown;
+            case 60:
+                return R.id.radio_candle;
+            case 70:
+                return R.id.radio_stars;
+            case 80:
+                return R.id.radio_rainbow;
+            case 90:
+                return R.id.radio_game_of_life;
+            case -2:
+                return R.id.radio_cancel;
+            case 100:
+                return R.id.radio_drop;
+            case 110:
+                return R.id.radio_rainbow_dot;
+            case 120:
+                return R.id.radio_cross;
+            case 130:
+                return R.id.radio_clock;
+            case 140:
+                return R.id.radio_hsv_wave;
+        }
+        return -1;
+    }
 
     private RadioGroup.OnCheckedChangeListener checkChangeListener = (group, checkedId) -> {
         switch (checkedId){
@@ -357,7 +415,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 break;
         }
         SaveAndLoad.SaveInt(this,"command", command_state);
-
+        change_img_btn_size();
 
     };
 
@@ -381,7 +439,10 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
 
     @Override
     public void toastCallBack(String toSend){
-        runOnUiThread(() -> Toast.makeText(this, toSend, Toast.LENGTH_SHORT).show());
+        runOnUiThread(() -> {
+            toast.setText(toSend);
+            toast.show();
+        });
     }
 
     @Override
@@ -391,6 +452,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     }
     @Override
     public void onDestroy() {
+        toast.cancel();
         super.onDestroy();
 
         // Unregister broadcast listeners

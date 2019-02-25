@@ -1,6 +1,5 @@
 package com.yannick.feld.lampe2;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -12,13 +11,11 @@ import android.widget.Toast;
 import java.util.Set;
 
 public class bluetooth_connect {
-    Context context;
-    Activity activity;
+    private Context context;
     private final static String TAG = "Blue";
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothDevice mDevice;
     private IconChangeCallback callback;
-    private final static int REQUEST_ENABLE_BT=1;
 
 
     public void findRaspberry() {
@@ -67,9 +64,9 @@ public class bluetooth_connect {
     }
 
 
-    public void onSend(String message) {
+    public void onSend(String message, boolean with_toast) {
         if(mBluetoothAdapter != null && mDevice != null){
-            new MessageThread(mDevice, message, callback).start();
+            new MessageThread(mDevice, message, with_toast, callback).start();
         }else{
             Toast.makeText(context, "Bluetooth disconnected", Toast.LENGTH_SHORT).show();
         }
@@ -77,15 +74,14 @@ public class bluetooth_connect {
     }
 
 
-    public bluetooth_connect(Context context, Activity activity, IconChangeCallback callback) {
+    public bluetooth_connect(Context context, IconChangeCallback callback) {
         this.context = context;
-        this.activity = activity;
         this.callback = callback;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         initBluetooth();
         findRaspberry();
-        onSend("echo");
+        onSend("echo", false);
 
     }
 

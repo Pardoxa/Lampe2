@@ -11,20 +11,21 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
-import android.widget.Toast;
 
 public class MessageThread extends Thread {
-    private final static String TAG="MessageThread";
+    private final static String TAG = "MessageThread";
     private final static String MY_UUID ="00001101-0000-1000-8000-00805f9b34fb";
-    private BluetoothSocket mSocket=null;
+    private BluetoothSocket mSocket = null;
     private String mMessage;
     private IconChangeCallback callback;
+    private boolean with_toast;
 
 
-    public MessageThread(BluetoothDevice device, String message, IconChangeCallback callback) {
+    public MessageThread(BluetoothDevice device, String message, boolean with_toast, IconChangeCallback callback) {
         Log.d(TAG,"Trying to send message...");
         this.callback = callback;
-        this.mMessage=message;
+        this.mMessage = message;
+        this.with_toast = with_toast;
         try {
             UUID uuid = UUID.fromString(MY_UUID);
             mSocket = device.createRfcommSocketToServiceRecord(uuid);
@@ -35,7 +36,7 @@ public class MessageThread extends Thread {
 
     private void manageConnectedSocket(BluetoothSocket socket) throws IOException {
         Log.d(TAG,"Connection successful");
-        if(callback != null){
+        if(callback != null && with_toast){
             callback.toastCallBack("Sending");
         }
         OutputStream os=socket.getOutputStream();
@@ -47,7 +48,9 @@ public class MessageThread extends Thread {
                 new InputStreamReader(is));
         Log.d(TAG,"Received: "+ reader.readLine());
         if(callback != null){
-            callback.toastCallBack("send");
+            if(with_toast){
+                callback.toastCallBack("send");
+            }
             callback.callback(0);
         }
     }
@@ -66,7 +69,9 @@ public class MessageThread extends Thread {
         } catch (IOException e) {
             if(callback != null){
                 callback.callback(1);
-                callback.toastCallBack("Lamp not found");
+                if(with_toast){
+                    callback.toastCallBack("Lamp not found");
+                }
             }
             e.printStackTrace();
         }
