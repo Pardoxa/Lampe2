@@ -10,8 +10,8 @@ import android.widget.NumberPicker;
 
 public class PickRotation extends Dialog implements
         android.view.View.OnClickListener{
-    public Activity c;
-    public Button yes, no;
+
+    private Button yes, no;
     private PickInterface pickInterface;
     private NumberPicker np_rotation;
     private int rotation;
@@ -20,7 +20,6 @@ public class PickRotation extends Dialog implements
     public PickRotation(Activity a, int rotation, PickInterface pickInterface) {
         super(a);
         // TODO Auto-generated constructor stub
-        this.c = a;
         this.pickInterface = pickInterface;
         this.rotation = rotation;
     }

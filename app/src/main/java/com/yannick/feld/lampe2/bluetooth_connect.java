@@ -23,10 +23,12 @@ public class bluetooth_connect {
             if(callback != null)
                 callback.callback(1);
             boolean found = false;
+            String devName = context.getResources().getString(R.string.raspberry);
             Set<BluetoothDevice> pairedDevices = mBluetoothAdapter
                     .getBondedDevices();
             for (BluetoothDevice device : pairedDevices) {
-                if(device.getName().equals("unit2")){
+
+                if(device.getName().equals(devName)){
                     if(callback != null)
                         callback.callback(1);
                     this.mDevice=device;

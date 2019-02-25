@@ -27,23 +27,14 @@ public class NumberPickerDialog extends DialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Choose Savefile");
-        //builder.setMessage("Choose a number :");
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        builder.setPositiveButton("OK", (dialog, which) ->
                 valueChangeListener.onValueChange(numberPicker,
-                        numberPicker.getValue(), numberPicker.getValue());
-            }
-        });
+                numberPicker.getValue(), numberPicker.getValue()));
 
-        builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        builder.setNegativeButton("CANCEL", (dialog, which) ->
                 valueChangeListener.onValueChange(numberPicker,
-                        numberPicker.getValue(), numberPicker.getValue());
-            }
-        });
+                numberPicker.getValue(), numberPicker.getValue()));
 
         builder.setView(numberPicker);
         return builder.create();

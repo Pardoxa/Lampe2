@@ -78,7 +78,7 @@ public class PickColor extends Dialog implements
             s1.setMax(hsv_precision); s2.setMax(hsv_precision); s3.setMax(hsv_precision);
             float[] hsv = new float[3];
             Color.colorToHSV(color, hsv);
-            s1.setProgress((int)(hsv[0] * hsv_precision / 360));
+            s1.setProgress((int)(hsv[0] * hsv_precision / 360.0f));
             s2.setProgress((int)(hsv[1] * hsv_precision));
             s3.setProgress((int)(hsv[2] * hsv_precision));
         }else{
@@ -123,10 +123,11 @@ public class PickColor extends Dialog implements
 
         rgb_hsv = findViewById(R.id.color_picker_rgb_hsv_switch);
         rgb_hsv.setChecked(use_hsv);
-        rgb_hsv.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            UseHSV(isChecked);
-        });
 
+        // toggle hsv <-> rgb
+        rgb_hsv.setOnCheckedChangeListener((buttonView, isChecked) -> UseHSV(isChecked));
+
+        // set rgb/hsv based on preference
         UseHSV(use_hsv);
     }
 

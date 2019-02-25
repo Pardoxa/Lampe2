@@ -8,6 +8,9 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.NumberPicker;
 
+import java.util.ArrayList;
+import java.util.List;
+
 interface PickInterface {
     void setDuration(int seconds);
 }
@@ -15,16 +18,15 @@ interface PickInterface {
 public class PickDuration extends Dialog implements
         android.view.View.OnClickListener {
 
-    public Activity c;
+
     private NumberPicker np_hours, np_minutes, np_seconds;
-    public Button yes, no;
+    private Button yes, no;
     private PickInterface pickInterface;
     private int duration;
 
     public PickDuration(Activity a, int duration, PickInterface pickInterface) {
         super(a);
         // TODO Auto-generated constructor stub
-        this.c = a;
         this.pickInterface = pickInterface;
         this.duration = duration;
     }
@@ -44,6 +46,13 @@ public class PickDuration extends Dialog implements
         np_hours.setValue(duration / 3600);
         np_minutes.setValue((duration% 3600) / 60);
         np_seconds.setValue(duration % 60);
+        // https://stackoverflow.com/questions/20214547/show-timepicker-with-minutes-intervals-in-android/20396673#20396673
+        List<String> displayedValues = new ArrayList<>();
+        for (int i = 0; i < 60; i ++) {
+            displayedValues.add(String.format("%02d", i));
+        }
+        np_seconds.setDisplayedValues(displayedValues.toArray(new String[displayedValues.size()]));
+        np_minutes.setDisplayedValues(displayedValues.toArray(new String[displayedValues.size()]));
         yes.setOnClickListener(this);
         no.setOnClickListener(this);
 

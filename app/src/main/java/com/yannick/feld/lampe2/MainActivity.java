@@ -100,11 +100,13 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
             case R.id.mode_toggle:
+                // Toggle daynight mode
                 is_night = !is_night;
                 SaveAndLoad.SaveBoolean(this, "d_n_mode", is_night);
                 super.recreate();
                 break;
             case R.id.rotation:
+                // pick rotation to send to the pi. Orientation of the unicorn-hat-hd
                 final PickRotation pickRotation = new PickRotation(this, rotation, (rotation) -> {
 
                     this.rotation = rotation;
@@ -115,11 +117,12 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 break;
             default:
                 if(scanState == -1){
+                    // Request to enable bluetooth if not enabled
                     Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     this.startActivityForResult(enableBtIntent, 1);
                     connect.findRaspberry();
                 }else{
-                    Toast.makeText(this, "invalid",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Bluetooth enabled",Toast.LENGTH_SHORT).show();
                 }
 
                 break;
@@ -132,6 +135,8 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         super.onCreate(savedInstanceState);
         context = this;
         toast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
+
+        // get Stored daynight-mode and set it
         is_night = SaveAndLoad.getBoolean(this, "d_n_mode");
         if(is_night){
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
@@ -142,7 +147,8 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         setContentView(R.layout.activity_main);
         picture_btn = findViewById(R.id.picture_btn);
 
-        // Picture Activity
+        // User wants to Draw
+        // -> open Picture Activity
         picture_btn.setOnClickListener(v -> {
             Intent i = new Intent(this, Picture.class);
             i.putExtra("duration",duration);
@@ -153,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
 
         //
         try{
+            // Set Bluetooth icon on the top left, remove app title
             ActionBar actionBar = getSupportActionBar();
             actionBar.setTitle("");
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -162,12 +169,18 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
             e.printStackTrace();
         }
 
+        // Check permissions (Bluetooth)
         checkPermissions();
+
         connect = new bluetooth_connect(this, this);
+
+        // For Callback when user turns off bluetooth (used for icon change top left)
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(connect.mReceiver, filter);
+
         send_btn = findViewById(R.id.send);
         send_btn.setOnClickListener(v -> {
+            // Send command to Raspberry
             float hsv[] = new float[3];
             Color.colorToHSV(color, hsv);
             Log.d("HSV 0", Float.toString(hsv[0]));
@@ -178,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                     send += "0 --color '" + hsv[0] + "," + hsv[1] + "," + hsv[2] + "'";
                     break;
                 case -2:
+                    // cancel command
                     send = "|<>#~ --dur " + 1 + " --bright " + Float.toString(brightness)
                             + " --rot " + rotation + " --command 0 --color '0,0,0'";
                     break;
@@ -286,6 +300,8 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     }
 
     private void change_img_btn_size(){
+        // Make img_btn visible, if the command requires user-specified color
+
         LinearLayout.LayoutParams params =
                 (LinearLayout.LayoutParams) relativeLayout_img_btn.getLayoutParams();
         final float scale = context.getResources().getDisplayMetrics().density;
@@ -348,6 +364,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     }
 
     private RadioGroup.OnCheckedChangeListener checkChangeListener = (group, checkedId) -> {
+        // Save command representing the user selection
         switch (checkedId){
             // 30 = draw
             case R.id.radio_color:
@@ -424,6 +441,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     public void callback(int status){
         ActionBar actionBar = getSupportActionBar();
         scanState = status;
+        // set Icon as estimated Bluetooth state
         switch (status){
             case 1:
                 runOnUiThread(() -> actionBar.setHomeAsUpIndicator(R.drawable.bluetooth_searching_24dp));

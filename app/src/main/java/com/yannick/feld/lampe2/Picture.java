@@ -97,6 +97,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     }
 
     private boolean load_picture(int key){
+        // load picture stored by user
         Bitmap bitmap = SaveAndLoad.getBitmap(this, key);
         if(bitmap != null
                 && bitmap.getWidth() == pixel.getWidth()
@@ -132,7 +133,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     }
 
     private void setImage(){
-        Bitmap bitmap = Bitmap.createScaledBitmap(pixel,minimum,minimum,false);
+        Bitmap bitmap = Bitmap.createScaledBitmap(pixel, minimum, minimum,false);
 
         img.setImageBitmap(bitmap);
     }
@@ -203,7 +204,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
 
         img.getLocationOnScreen(img_viewCoords);
 
-
+        // Let the user Draw (or pick a color)
         img.setOnTouchListener((v, event) ->
              {
 
@@ -223,6 +224,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                 x = Math.max(0, x);
                 y = Math.max(0, y);
                  if(!toggle.isChecked()){
+                     // User draws
                      switch (event.getActionMasked()){
                          case ACTION_DOWN:
                              SaveAndLoad.saveBitmap(this, -1, pixel);
@@ -246,8 +248,9 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                          SaveAndLoad.saveBitmap(this, -2, pixel);
                      }
                  }else{
+                     // User picks color from drawing
 
-                     color = pixel.getPixel(x,y);
+                     color = pixel.getPixel(x, y);
                      color_btn.setBackgroundColor(color);
                      SaveAndLoad.SaveInt(this, "color_picture", color);
 
@@ -257,6 +260,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
             }
         );
         try{
+            // back button icon
             ActionBar actionBar = getSupportActionBar();
             actionBar.setTitle("");
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -266,6 +270,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         }
         send_btn = findViewById(R.id.send_btn);
         send_btn.setOnClickListener(v ->{
+            // Send command to raspberry
             String data = "|<>#~ --command 30 --dur " + duration + " --bright " + brightness
                         + " --rot " + rotation + " --picture '";
             for(int x = 0; x < 16; x++){
@@ -289,6 +294,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         toggle = findViewById(R.id.picture_switch);
         toggleTextView = findViewById(R.id.picture_textview_switch);
         toggleTextView.setText("draw");
+        // toggle between draw and pick-color mode
         toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(isChecked){
                 toggleTextView.setText("pick");
