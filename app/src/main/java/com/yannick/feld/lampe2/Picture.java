@@ -281,7 +281,8 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                 }
             }
             data += "' ~#><|";
-            Toast.makeText(this, "connecting", Toast.LENGTH_SHORT).show();
+            toast.setText("connecting");
+            toast.show();
             connect.onSend(data, true);
         });
 

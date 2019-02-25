@@ -207,7 +207,8 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
 
             }
             send += " ~#><|";
-            Toast.makeText(this,"connecting",Toast.LENGTH_SHORT).show();
+            toast.setText("connecting");
+            toast.show();
             connect.onSend(send, true);
 
         });
