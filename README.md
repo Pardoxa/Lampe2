@@ -13,5 +13,8 @@ I used [this](http://it-in-der-hosentasche.blogspot.com/2014/03/bluetooth-zwisch
 
 # Note:
 
-Currently I assume that you are paired with the raspberry and the raspberry  is named (host name) "unit2".
-If you named your pi differently, you have to change the name in the strings.xml
+You should follow the instructions on the [raspberry part](https://github.com/Pardoxa/lamp2) first.
+
+If you did, you are now paired with the raspberry.
+
+Use Android studio to install the app and have fun :)

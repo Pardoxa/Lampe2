@@ -37,6 +37,18 @@ public final class SaveAndLoad {
 
     }
 
+    public static void SaveString(Context context, String Key, String value){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(Key, value);
+        editor.apply();     // This line is IMPORTANT !!!
+    }
+
+    public static String GetString(Context context, String Key){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString(Key, null);
+    }
+
     public static void SaveInt(Context context, String Key, int value){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();

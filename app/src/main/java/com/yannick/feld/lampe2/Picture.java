@@ -146,9 +146,10 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         brightness = intent.getFloatExtra("bright", 0.0f);
         duration = intent.getIntExtra("duration", 0);
         rotation = intent.getIntExtra("rotation", 0);
+        String raspberry = intent.getStringExtra("RASPBERRY");
 
         setContentView(R.layout.activity_picture);
-        connect = new bluetooth_connect(this, this);
+        connect = new bluetooth_connect(this, this, raspberry);
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(connect.mReceiver, filter);
         img = findViewById(R.id.img);

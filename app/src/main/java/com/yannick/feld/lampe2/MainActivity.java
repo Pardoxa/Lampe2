@@ -50,6 +50,8 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     private float brightness = 0;
     private SeekBar brightness_seekbar;
     private Toast toast;
+    private String RaspberryPiName = null;
+    private Menu menu;
     Context context;
 
 
@@ -89,10 +91,13 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         rotation = SaveAndLoad.getInt(this, "rotation");
         menu.findItem(R.id.rotation).setTitle(PickRotation.displayed[rotation]);
+        MenuItem menuItem = menu.findItem(R.id.main_menu_raspberry);
+        menuItem.setTitle(RaspberryPiName);
         return true;
     }
 
@@ -114,6 +119,20 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                     SaveAndLoad.SaveInt(this, "rotation", rotation);
                 });
                 pickRotation.show();
+                break;
+            case R.id.main_menu_raspberry:
+                final PickRaspberry raspberry = new PickRaspberry(this, this, name -> {
+                    RaspberryPiName = name;
+                    SaveAndLoad.SaveString(context, "Bluetooth_name", name);
+                    item.setTitle(name);
+                    // Unregister broadcast listeners
+                    unregisterReceiver(connect.mReceiver);
+                    connect = new bluetooth_connect(this, this, RaspberryPiName);
+                    // For Callback when user turns off bluetooth (used for icon change top left)
+                    IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+                    registerReceiver(connect.mReceiver, filter);
+                });
+                raspberry.show();
                 break;
             default:
                 if(scanState == -1){
@@ -154,6 +173,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
             i.putExtra("duration",duration);
             i.putExtra("bright", brightness);
             i.putExtra("rotation", rotation);
+            i.putExtra("RASPBERRY", RaspberryPiName);
             startActivity(i);
         });
 
@@ -171,8 +191,12 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
 
         // Check permissions (Bluetooth)
         checkPermissions();
+        RaspberryPiName = SaveAndLoad.GetString(this, "Bluetooth_name");
+        if(RaspberryPiName == null){
+            RaspberryPiName = context.getResources().getString(R.string.raspberry);
+        }
 
-        connect = new bluetooth_connect(this, this);
+        connect = new bluetooth_connect(this, this, RaspberryPiName);
 
         // For Callback when user turns off bluetooth (used for icon change top left)
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);

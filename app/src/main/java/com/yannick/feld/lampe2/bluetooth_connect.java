@@ -16,6 +16,7 @@ public class bluetooth_connect {
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothDevice mDevice;
     private IconChangeCallback callback;
+    private String devName;
 
 
     public void findRaspberry() {
@@ -23,7 +24,6 @@ public class bluetooth_connect {
             if(callback != null)
                 callback.callback(1);
             boolean found = false;
-            String devName = context.getResources().getString(R.string.raspberry);
             Set<BluetoothDevice> pairedDevices = mBluetoothAdapter
                     .getBondedDevices();
             for (BluetoothDevice device : pairedDevices) {
@@ -76,11 +76,11 @@ public class bluetooth_connect {
     }
 
 
-    public bluetooth_connect(Context context, IconChangeCallback callback) {
+    public bluetooth_connect(Context context, IconChangeCallback callback, String devName) {
         this.context = context;
         this.callback = callback;
+        this.devName = devName;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
         initBluetooth();
         findRaspberry();
         onSend("echo", false);
