@@ -259,6 +259,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         relativeLayout_img_btn = findViewById(R.id.main_relative_layout_color_picker);
         img_btn = findViewById(R.id.main_color_picker);
         img_btn.setBackgroundColor(color);
+        img_btn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_touch_app_black_24dp));
         img_btn.setOnClickListener(v ->{
             final PickColor pickColor =
                     new PickColor(this, color,

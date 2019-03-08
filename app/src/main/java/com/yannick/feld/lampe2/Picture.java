@@ -181,6 +181,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
 
         color_btn = findViewById(R.id.color_btn);
         color_btn.setBackgroundColor(color);
+        color_btn.setImageDrawable(this.getResources().getDrawable(R.drawable.ic_touch_app_black_24dp));
         color_btn.setOnClickListener(v ->{
             final PickColor pickColor = new PickColor(this, color,
                                         SaveAndLoad.getBoolean(this, "HSV"),

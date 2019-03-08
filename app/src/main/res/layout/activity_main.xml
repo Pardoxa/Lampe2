@@ -188,7 +188,8 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
-            android:background="#000000"/>
+            android:background="#000000"
+            />
     </RelativeLayout>
 
 
