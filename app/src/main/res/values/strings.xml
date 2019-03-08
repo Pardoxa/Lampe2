@@ -1,13 +1,4 @@
 <resources>
     <string name="app_name">Lampe2</string>
-    <string name="c_uuid_1">1963b7b2-33be-11e9-b210-d663bd873d93</string>
-    <string name="c_uuid_2">43da838e-bb3b-4540-9a90-0a23e4b04fe7</string>
-    <string name="desc_1">829dc696-27ca-4be8-b1ad-1237e231ec0e</string>
-    <string name="desc_2">f52e1cc1-b366-4b3a-bc6c-29bf491463d9</string>
-    <string name="primary_service_uuid">8535886a-33c0-11e9-b210-d663bd873d93</string>
-    <string name="lampName">ylampBluetooth</string>
-    <string name="raspberry">unit2</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="raspberry">raspberry</string>
 </resources>

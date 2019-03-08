@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -312,6 +313,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
             pickDuration.show();
         });
     }
+
     public static String formatDuration(long duration) {
         long seconds = duration;
         long absSeconds = Math.abs(seconds);
