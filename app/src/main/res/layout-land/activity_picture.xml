@@ -44,6 +44,10 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/picture_switch"/>
                 </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/save_name"/>
 
             </LinearLayout>
 

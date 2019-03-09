@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="horizontal"
+        android:background="@drawable/listview_selector">
+        <!-- https://stackoverflow.com/questions/31915026/how-can-i-make-a-listview-in-android-studio  -->
+
+
+        <ImageView
+            android:layout_height="match_parent"
+            android:id="@+id/save_img"
+            android:layout_width="wrap_content"
+            android:background="@android:color/transparent"
+            app:layout_constraintDimensionRatio="1:1"
+            android:adjustViewBounds="true"
+            />
+        <Space
+            android:layout_width="5dp"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:gravity="start"
+            android:typeface="serif"
+            android:id="@+id/list_item_save"
+            android:padding="3dp"
+            />
+
+
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

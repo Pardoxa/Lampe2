@@ -74,12 +74,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/pick_duration_no"
-                    android:text="no"/>
+                    android:text="@android:string/cancel"/>
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/pick_duration_yes"
-                    android:text="yes"/>
+                    android:text="@android:string/ok"/>
                 <Space
                     android:layout_width="15dp"
                     android:layout_height="wrap_content" />

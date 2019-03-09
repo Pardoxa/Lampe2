@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Lampe2</string>
     <string name="raspberry">raspberry</string>
+    <string name="display_save_name">Save:\t</string>
 </resources>

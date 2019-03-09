@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -14,8 +15,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Base64;
 import java.util.LinkedList;
 
@@ -79,6 +82,7 @@ public final class SaveAndLoad {
 
 
     }
+
     public static Bitmap getBitmap(Context context, int key){
         try{
             File file = context.getFileStreamPath(Integer.toString(key) + ".png");
@@ -87,6 +91,37 @@ public final class SaveAndLoad {
             return BitmapFactory.decodeFile(file.getAbsolutePath());
 
 
+        }catch(Exception e){
+            e.printStackTrace();
+            Log.e("LOADING", "ERROR");
+            return null;
+        }
+
+    }
+
+
+
+    public static void saveStringArray(Context context, String key, String[] array){
+        try{
+            FileOutputStream fout = context.openFileOutput(key + ".save", Context.MODE_PRIVATE);
+            ObjectOutputStream out = new ObjectOutputStream(fout);
+            out.writeObject(array);
+        }catch(Exception e){
+            e.printStackTrace();
+            Log.e("ERROR", e.getMessage());
+            Log.e("SAVING", "ERROR");
+        }
+
+    }
+
+
+
+    public static String[] getStringArray(Context context, String key){
+        try{
+            FileInputStream fin = context.openFileInput(key + ".save");
+            Log.e("SIZE:",Long.toString(fin.getChannel().size()));
+            ObjectInputStream in = new ObjectInputStream(fin);
+            return  (String[]) in.readObject();
         }catch(Exception e){
             e.printStackTrace();
             Log.e("LOADING", "ERROR");

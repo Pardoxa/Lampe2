@@ -1,6 +1,7 @@
 package com.yannick.feld.lampe2;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
@@ -44,13 +45,15 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     private float brightness;
     private int duration, rotation;
     private Toast toast;
+    private Context context;
+    private TextView tv_save_name;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.picture_menu, menu);
         save = SaveAndLoad.getInt(this, "save");
-        menu.findItem(R.id.np_menu_picture).setTitle("Savefile " + save);
+        menu.findItem(R.id.np_menu_picture).setTitle("choose savefile");
         return true;
     }
 
@@ -63,24 +66,29 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                 Toast.makeText(this,"Saved " + save, Toast.LENGTH_SHORT).show();
                 break;
             case R.id.load_menu_picture:
-                boolean success = load_picture(save);
-                if(success){
-                    Toast.makeText(this, "Loaded " + save, Toast.LENGTH_SHORT).show();
-                }else{
-                    Toast.makeText(this, "Can't load " + save + "- not saved yet?", Toast.LENGTH_LONG).show();
-                }
+                SaveFileDialog saveFileDialog1 = new SaveFileDialog(this, this, save, (position, name) -> {
+                    save = position;
+                    Log.d("Save", Integer.toString(save));
+                    SaveAndLoad.SaveInt(context, "save", save);
+                    tv_save_name.setText(context.getResources().getString(R.string.display_save_name) + name);
+                    boolean success = load_picture(position);
+                    if(success){
+                        Toast.makeText(this, "Loaded " + save, Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(this, "Can't load " + save + "- not saved yet?", Toast.LENGTH_LONG).show();
+                    }
+                });
+                saveFileDialog1.show();
+
                 break;
             case R.id.np_menu_picture:
-                NumberPickerDialog newFragment = new NumberPickerDialog();
-                newFragment.setCurrent(save);
-                newFragment.setValueChangeListener((picker, oldVal, newVal) -> {
-                        save = newVal;
-                        Log.d("Save", Integer.toString(save));
-                        SaveAndLoad.SaveInt(this, "save", save);
-                        item.setTitle("Savefile " + Integer.toString(save));
-                    }
-                );
-                newFragment.show(getSupportFragmentManager(), "Save File");
+                SaveFileDialog saveFileDialog = new SaveFileDialog(this, this, save, (position, name) -> {
+                    save = position;
+                    Log.d("Save", Integer.toString(save));
+                    SaveAndLoad.SaveInt(context, "save", save);
+                    tv_save_name.setText(context.getResources().getString(R.string.display_save_name) + name);
+                });
+                saveFileDialog.show();
                 break;
             case R.id.undo_menu_picture:
                 if(!load_picture(-1)){
@@ -142,6 +150,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
+        context = this;
         toast = Toast.makeText(this,"",Toast.LENGTH_SHORT);
         brightness = intent.getFloatExtra("bright", 0.0f);
         duration = intent.getIntExtra("duration", 0);
@@ -152,6 +161,16 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         connect = new bluetooth_connect(this, this, raspberry);
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(connect.mReceiver, filter);
+
+        tv_save_name = findViewById(R.id.save_name);
+        String[] SaveNames = SaveAndLoad.getStringArray(this, SaveFileDialog.saveFileKey);
+        if(SaveNames != null && SaveNames.length > save){
+            tv_save_name.setText(context.getResources().getString(R.string.display_save_name) + SaveNames[save]);
+        }else {
+            tv_save_name.setText(context.getResources().getString(R.string.display_save_name) + save);
+        }
+
+
         img = findViewById(R.id.img);
 
         //Get size of Screen for adjusting the hight.
@@ -255,6 +274,18 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                      color = pixel.getPixel(x, y);
                      color_btn.setBackgroundColor(color);
                      SaveAndLoad.SaveInt(this, "color_picture", color);
+                     switch (event.getActionMasked()){
+                         case ACTION_DOWN:
+                             Log.d("Pick-Action", "DOWN");
+                             break;
+                         case ACTION_MOVE:
+                             Log.d("Pick-Action", "Move");
+                             break;
+                         case ACTION_UP:
+                             Log.d("Pick-Action", "UP");
+                             toggle.setChecked(false);
+                             break;
+                     }
 
                  }
 
