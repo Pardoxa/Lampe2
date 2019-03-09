@@ -5,4 +5,5 @@
     <color name="colorAccent">#FFD81B60</color>
     <color name="shutdown">#FF000000</color>
     <color name="state_selected">#4167FFEC</color>
+    <color name="state_selected_multiple">#37AF0000</color>
 </resources>

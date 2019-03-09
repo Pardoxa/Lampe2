@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         this.startActivityForResult(enableBtIntent, 1);
 
-        color = SaveAndLoad.getInt(this, "color_main", Color.BLACK);
+        color = SaveAndLoad.getInt(this, "color_main", Color.GREEN);
 
         relativeLayout_img_btn = findViewById(R.id.main_relative_layout_color_picker);
         img_btn = findViewById(R.id.main_color_picker);
@@ -301,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
             }
         });
 
-        duration = SaveAndLoad.getInt(this, "duration");
+        duration = SaveAndLoad.getInt(this, "duration", 100);
         duration_btn = findViewById(R.id.duration);
         duration_btn.setText(formatDuration(duration));
         duration_btn.setOnClickListener(v ->  {

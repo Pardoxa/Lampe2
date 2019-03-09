@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.LinkedList;
 
@@ -99,9 +100,32 @@ public final class SaveAndLoad {
 
     }
 
+    public static <T> void saveArrayList(Context context, String key, ArrayList<T> list){
+        try{
+            FileOutputStream fout = context.openFileOutput(key + ".save", Context.MODE_PRIVATE);
+            ObjectOutputStream out = new ObjectOutputStream(fout);
+            out.writeObject(list);
+        }catch(Exception e){
+            e.printStackTrace();
+            Log.e("ERROR", e.getMessage());
+            Log.e("SAVING", "ERROR");
+        }
+    }
 
+    public static <T> ArrayList<T> getArrayList(Context context, String key){
+        try{
+            FileInputStream fin = context.openFileInput(key + ".save");
+            Log.e("SIZE:",Long.toString(fin.getChannel().size()));
+            ObjectInputStream in = new ObjectInputStream(fin);
+            return  (ArrayList<T>) in.readObject();
+        }catch(Exception e){
+            e.printStackTrace();
+            Log.e("LOADING", "ERROR");
+            return new ArrayList<>();
+        }
+    }
 
-    public static void saveStringArray(Context context, String key, String[] array){
+    public static <T> void saveArray(Context context, String key, T[] array){
         try{
             FileOutputStream fout = context.openFileOutput(key + ".save", Context.MODE_PRIVATE);
             ObjectOutputStream out = new ObjectOutputStream(fout);
@@ -116,12 +140,12 @@ public final class SaveAndLoad {
 
 
 
-    public static String[] getStringArray(Context context, String key){
+    public static <T> T[] getArray(Context context, String key){
         try{
             FileInputStream fin = context.openFileInput(key + ".save");
             Log.e("SIZE:",Long.toString(fin.getChannel().size()));
             ObjectInputStream in = new ObjectInputStream(fin);
-            return  (String[]) in.readObject();
+            return  (T[]) in.readObject();
         }catch(Exception e){
             e.printStackTrace();
             Log.e("LOADING", "ERROR");

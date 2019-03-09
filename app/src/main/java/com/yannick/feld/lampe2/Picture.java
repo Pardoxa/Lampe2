@@ -22,6 +22,9 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+
 import static android.view.MotionEvent.ACTION_DOWN;
 import static android.view.MotionEvent.ACTION_MOVE;
 import static android.view.MotionEvent.ACTION_UP;
@@ -52,7 +55,6 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.picture_menu, menu);
-        save = SaveAndLoad.getInt(this, "save");
         menu.findItem(R.id.np_menu_picture).setTitle("choose savefile");
         return true;
     }
@@ -96,6 +98,46 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                 }else{
                     SaveAndLoad.saveBitmap(this, -2, pixel);
                 }
+                break;
+            case R.id.menu_drawing_show:
+                SaveFileDialog saveFileDialog3 = new SaveFileDialog(this, this, save, true, null, (positions, dur) -> {
+                    String data = "|<>#~ --command 31 --dur " + duration + " --bright " + brightness
+                            + " --rot " + rotation + " --freq " + dur + " --picture '";
+                    for(Integer pic : positions){
+                        Log.d("POSITIONS", "" + pic);
+                        Bitmap bitmap = SaveAndLoad.getBitmap(context, pic);
+                        if(bitmap != null
+                                && bitmap.getWidth() == pixel.getWidth()
+                                && bitmap.getHeight() == pixel.getHeight()) {
+
+
+                            for(int x = 0; x < 16; x++){
+                                for(int y = 0; y < 16; y++){
+
+                                    int p = bitmap.getPixel(x,y);
+                                    // https://stackoverflow.com/questions/6539879/how-to-convert-a-color-integer-to-a-hex-string-in-android
+                                    data += Integer.toHexString(p).substring(2);
+
+                                    if(x != 15 || y != 15){
+                                        data += ",";
+                                    }
+                                }
+                            }
+                        }else {
+                            continue;
+                        }
+                        data += "|";
+
+                    }
+
+
+
+                    data += "' ~#><|";
+                    toast.setText("connecting");
+                    toast.show();
+                    connect.onSend(data, true);
+                });
+                saveFileDialog3.show();
                 break;
             default:
                 finish();
@@ -151,6 +193,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
         context = this;
+        save = SaveAndLoad.getInt(context, "save");
         toast = Toast.makeText(this,"",Toast.LENGTH_SHORT);
         brightness = intent.getFloatExtra("bright", 0.0f);
         duration = intent.getIntExtra("duration", 0);
@@ -163,7 +206,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         registerReceiver(connect.mReceiver, filter);
 
         tv_save_name = findViewById(R.id.save_name);
-        String[] SaveNames = SaveAndLoad.getStringArray(this, SaveFileDialog.saveFileKey);
+        String[] SaveNames = SaveAndLoad.getArray(this, SaveFileDialog.saveFileKey);
         if(SaveNames != null && SaveNames.length > save){
             tv_save_name.setText(context.getResources().getString(R.string.display_save_name) + SaveNames[save]);
         }else {
@@ -308,11 +351,12 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                         + " --rot " + rotation + " --picture '";
             for(int x = 0; x < 16; x++){
                 for(int y = 0; y < 16; y++){
+
                     int p = pixel.getPixel(x,y);
-                    int R = (p >> 16) & 0xff;
-                    int G = (p >> 8) & 0xff;
-                    int B = p & 0xff;
-                    data +=  Integer.toString(R) + "," + Integer.toString(G) + "," + Integer.toString(B);
+                    float hsv[] = new float[3];
+                    Color.colorToHSV(p, hsv);
+                    hsv[0] /= 360.0;
+                    data += hsv[0] + "," + hsv[1] + "," + hsv[2];
                     if(x != 15 || y != 15){
                         data += "#";
                     }

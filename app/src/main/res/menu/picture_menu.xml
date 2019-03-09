@@ -24,4 +24,9 @@
         android:title="load"
         app:showAsAction="ifRoom">
     </item>
+    <item
+        android:id="@+id/menu_drawing_show"
+        android:title="draw show">
+
+    </item>
 </menu>

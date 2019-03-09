@@ -3,7 +3,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center">
+    android:gravity="center"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,6 +20,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/save_file_dialog_info"
+                android:padding="10dp"
                 android:text="long click to edit filename"/>
             <ListView
                 android:layout_width="match_parent"
@@ -40,12 +43,39 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:layout_weight="1">
-        <Button
+        android:layout_weight="0"
+        android:minWidth="300dp"
+        android:orientation="vertical">
+        <LinearLayout
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/select_all"
+                android:visibility="gone"
+                android:text="All"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:text="None"
+                android:id="@+id/save_file_dialog_clear"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:text="frequency"
+                android:id="@+id/save_file_dialog_duration"/>
+        </LinearLayout>
+        <Button
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/save_file_dialog_cancel"
             android:text="@android:string/cancel"/>
     </LinearLayout>
+
+
 
 </LinearLayout>
