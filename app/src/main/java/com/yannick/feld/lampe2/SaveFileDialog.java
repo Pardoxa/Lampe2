@@ -129,20 +129,18 @@ public class SaveFileDialog extends Dialog
         listView.setOnItemLongClickListener((parent, view, position, id) -> {
 
             Log.d("ListView","LongClick");
-            if(!select_multiple){
-                RenameDialog renameDialog = new RenameDialog(activity, context, names[position], name -> {
-                    names[position] = name;
-                    adapter.notifyDataSetChanged();
-                    SaveAndLoad.saveArray(context, saveFileKey, names);
-                    SaveAndLoad.saveArray(context, "ORDER_ARRAY", order);
-                    if(position == current_save_file){
-                        saveFileCallback.saveFileCallback(current_save_file, names[current_save_file]);
-                    }
-                });
-                renameDialog.show();
-            }else{
-                return false;
-            }
+
+            RenameDialog renameDialog = new RenameDialog(activity, context, names[position], name -> {
+                names[position] = name;
+                adapter.notifyDataSetChanged();
+                SaveAndLoad.saveArray(context, saveFileKey, names);
+                SaveAndLoad.saveArray(context, "ORDER_ARRAY", order);
+                if(position == current_save_file){
+                    saveFileCallback.saveFileCallback(-current_save_file, names[current_save_file]);
+                }
+            });
+            renameDialog.show();
+
 
             return true;
         });

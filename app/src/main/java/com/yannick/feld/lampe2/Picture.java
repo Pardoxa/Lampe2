@@ -69,25 +69,33 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                 break;
             case R.id.load_menu_picture:
                 SaveFileDialog saveFileDialog1 = new SaveFileDialog(this, this, save, (position, name) -> {
-                    save = position;
+                    if(position >= 0){
+                        save = position;
+                    }
+
                     Log.d("Save", Integer.toString(save));
                     SaveAndLoad.SaveInt(context, "save", save);
                     tv_save_name.setText(context.getResources().getString(R.string.display_save_name) + name);
-                    boolean success = load_picture(position);
-                    if(success){
-                        Toast.makeText(this, "Loaded " + save, Toast.LENGTH_SHORT).show();
-                    }else{
-                        Toast.makeText(this, "Can't load " + save + "- not saved yet?", Toast.LENGTH_LONG).show();
+                    if(position >= 0){
+                        boolean success = load_picture(position);
+                        if(success){
+                            Toast.makeText(this, "Loaded " + save, Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(this, "Can't load " + save + "- not saved yet?", Toast.LENGTH_LONG).show();
+                        }
                     }
+
                 });
                 saveFileDialog1.show();
 
                 break;
             case R.id.np_menu_picture:
                 SaveFileDialog saveFileDialog = new SaveFileDialog(this, this, save, (position, name) -> {
-                    save = position;
-                    Log.d("Save", Integer.toString(save));
-                    SaveAndLoad.SaveInt(context, "save", save);
+                    if(position >= 0){
+                        save = position;
+                        Log.d("Save", Integer.toString(save));
+                        SaveAndLoad.SaveInt(context, "save", save);
+                    }
                     tv_save_name.setText(context.getResources().getString(R.string.display_save_name) + name);
                 });
                 saveFileDialog.show();
