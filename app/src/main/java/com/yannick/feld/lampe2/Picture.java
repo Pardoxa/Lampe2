@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.support.v7.app.ActionBar;
@@ -50,6 +51,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     private Toast toast;
     private Context context;
     private TextView tv_save_name;
+    private ArrayList<Bitmap> bitmapStack = new ArrayList<>();
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -101,11 +103,18 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                 saveFileDialog.show();
                 break;
             case R.id.undo_menu_picture:
-                if(!load_picture(-1)){
+                Bitmap tempBitmap = popBitmapStack();
+                if(tempBitmap == null){
                     Toast.makeText(this, "Can't undo action - nothing done yet?", Toast.LENGTH_LONG).show();
                 }else{
+                    load_picture(tempBitmap);
                     SaveAndLoad.saveBitmap(this, -2, pixel);
                 }
+                //if(!load_picture(-1)){
+                //
+                //}else{
+                //    SaveAndLoad.saveBitmap(this, -2, pixel);
+                //}
                 break;
             case R.id.menu_drawing_show:
                 SaveFileDialog saveFileDialog3 = new SaveFileDialog(this, this, save, true, null, (positions, dur) -> {
@@ -155,8 +164,13 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     }
 
     private boolean load_picture(int key){
-        // load picture stored by user
         Bitmap bitmap = SaveAndLoad.getBitmap(this, key);
+        return load_picture(bitmap);
+    }
+
+    private boolean load_picture(Bitmap bitmap){
+        // load picture stored by user
+
         if(bitmap != null
                 && bitmap.getWidth() == pixel.getWidth()
                 && bitmap.getHeight() == pixel.getHeight()){
@@ -299,7 +313,8 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                      // User draws
                      switch (event.getActionMasked()){
                          case ACTION_DOWN:
-                             SaveAndLoad.saveBitmap(this, -1, pixel);
+                             addToBitmapStack(pixel);
+                           //  SaveAndLoad.saveBitmap(this, -1, pixel);
                              Log.d("Action", "DOWN");
                              break;
                          case ACTION_MOVE:
@@ -387,6 +402,23 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                 toggleTextView.setText("draw");
             }
         });
+    }
+
+    private void addToBitmapStack(Bitmap bitmap){
+        bitmapStack.add(bitmap.copy(bitmap.getConfig(),true));
+        if(bitmapStack.size() > 20){
+            bitmapStack.remove(0);
+        }
+    }
+
+    private Bitmap popBitmapStack(){
+        if(bitmapStack.isEmpty()){
+            return null;
+        }
+        int indexOfLastElement = bitmapStack.size() - 1;
+        Bitmap bitmap = bitmapStack.get(indexOfLastElement);
+        bitmapStack.remove(indexOfLastElement);
+        return bitmap;
     }
 
     @Override
