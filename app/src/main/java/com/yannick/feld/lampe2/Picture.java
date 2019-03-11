@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.LogPrinter;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -118,8 +119,10 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                 break;
             case R.id.menu_drawing_show:
                 SaveFileDialog saveFileDialog3 = new SaveFileDialog(this, this, save, true, null, (positions, dur) -> {
+                    StringBuilder stringBuilder = new StringBuilder();
                     String data = "|<>#~ --command 31 --dur " + duration + " --bright " + brightness
                             + " --rot " + rotation + " --freq " + dur + " --picture '";
+                    stringBuilder.append(data);
                     for(Integer pic : positions){
                         Log.d("POSITIONS", "" + pic);
                         Bitmap bitmap = SaveAndLoad.getBitmap(context, pic);
@@ -127,29 +130,43 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                                 && bitmap.getWidth() == pixel.getWidth()
                                 && bitmap.getHeight() == pixel.getHeight()) {
 
-
+                            int lastpixel = -1;
+                            int count = 0;
                             for(int x = 0; x < 16; x++){
                                 for(int y = 0; y < 16; y++){
 
                                     int p = bitmap.getPixel(x,y);
                                     // https://stackoverflow.com/questions/6539879/how-to-convert-a-color-integer-to-a-hex-string-in-android
-                                    data += Integer.toHexString(p).substring(2);
-
-                                    if(x != 15 || y != 15){
-                                        data += ",";
+                                    if(p == lastpixel){
+                                        count ++;
+                                    }else{
+                                        if(count > 0){
+                                            stringBuilder.append("x");
+                                            stringBuilder.append(count);
+                                            stringBuilder.append("x");
+                                            count = 0;
+                                        }
+                                        lastpixel = p;
+                                        stringBuilder.append(Integer.toHexString(p).substring(2));
                                     }
+
                                 }
+                            }
+                            if(count > 0){
+                                stringBuilder.append("x");
+                                stringBuilder.append(count);
+                                stringBuilder.append("x");
                             }
                         }else {
                             continue;
                         }
-                        data += "|";
+                        stringBuilder.append("|");
 
                     }
 
+                    data = stringBuilder.toString() + "' ~#><|";
 
 
-                    data += "' ~#><|";
                     toast.setText("connecting");
                     toast.show();
                     connect.onSend(data, true);
@@ -352,6 +369,8 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                              toggle.setChecked(false);
                              break;
                      }
+                     old_x = -1;
+                     old_y = -1;
 
                  }
 
@@ -370,22 +389,37 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         send_btn = findViewById(R.id.send_btn);
         send_btn.setOnClickListener(v ->{
             // Send command to raspberry
+            StringBuilder stringBuilder = new StringBuilder();
             String data = "|<>#~ --command 30 --dur " + duration + " --bright " + brightness
                         + " --rot " + rotation + " --picture '";
+            stringBuilder.append(data);
+            int lastpixel = -1;
+            int count = 0;
             for(int x = 0; x < 16; x++){
                 for(int y = 0; y < 16; y++){
 
                     int p = pixel.getPixel(x,y);
-                    float hsv[] = new float[3];
-                    Color.colorToHSV(p, hsv);
-                    hsv[0] /= 360.0;
-                    data += hsv[0] + "," + hsv[1] + "," + hsv[2];
-                    if(x != 15 || y != 15){
-                        data += "#";
+                    if(p == lastpixel){
+                        count ++;
+                    }else{
+                        if(count > 0){
+                            stringBuilder.append("x");
+                            stringBuilder.append(count);
+                            stringBuilder.append("x");
+                            count = 0;
+                        }
+                        lastpixel = p;
+                        stringBuilder.append(Integer.toHexString(p).substring(2));
                     }
+
                 }
             }
-            data += "' ~#><|";
+            if(count > 0){
+                stringBuilder.append("x");
+                stringBuilder.append(count);
+                stringBuilder.append("x");
+            }
+            data = stringBuilder.toString() + "' ~#><|";
             toast.setText("connecting");
             toast.show();
             connect.onSend(data, true);
