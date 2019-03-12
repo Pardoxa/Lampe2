@@ -9,6 +9,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +23,7 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -26,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 import static android.view.MotionEvent.ACTION_DOWN;
 import static android.view.MotionEvent.ACTION_MOVE;
@@ -53,6 +60,8 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     private Context context;
     private TextView tv_save_name;
     private ArrayList<Bitmap> bitmapStack = new ArrayList<>();
+    boolean doFloodFill = true;
+    private ImageButton floodFillbtn;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -305,6 +314,25 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
             SaveAndLoad.saveBitmap(this, -2, pixel);
         });
 
+        floodFillbtn = findViewById(R.id.floodfillbtn);
+        floodFillbtn.setOnClickListener(v -> {
+            doFloodFill = !doFloodFill;
+
+            //  https://stackoverflow.com/questions/11376516/change-drawable-color-programmatically/47299270
+            if(doFloodFill){
+                DrawableCompat.setTint(
+                        floodFillbtn.getDrawable(),
+                        ContextCompat.getColor(context, R.color.floodFillHighlight)
+                );
+            }else {
+                DrawableCompat.setTint(
+                        floodFillbtn.getDrawable(),
+                        ContextCompat.getColor(context, R.color.floodFillnormal)
+                );
+            }
+        });
+        floodFillbtn.performClick();
+
         img.getLocationOnScreen(img_viewCoords);
 
         // Let the user Draw (or pick a color)
@@ -326,6 +354,30 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                 y = Math.min(y, max_size);
                 x = Math.max(0, x);
                 y = Math.max(0, y);
+
+                if(doFloodFill){
+                    switch (event.getActionMasked()){
+                        case ACTION_DOWN:
+                            Bitmap bitmap = floodFill(pixel, new Point(x,y), color);
+                            if(bitmap != null){
+                                addToBitmapStack(pixel);
+                                load_picture(bitmap);
+                            }
+                            Log.d("Action", "DOWN");
+                            break;
+                        case ACTION_MOVE:
+                            Log.d("Action", "Move");
+                            break;
+                        case ACTION_UP:
+                            old_y = -1;
+                            old_x = -1;
+                            floodFillbtn.performClick();
+                            Log.d("Action", "UP");
+                            break;
+                    }
+                    return true;
+                }
+
                  if(!toggle.isChecked()){
                      // User draws
                      switch (event.getActionMasked()){
@@ -452,6 +504,37 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
         int indexOfLastElement = bitmapStack.size() - 1;
         Bitmap bitmap = bitmapStack.get(indexOfLastElement);
         bitmapStack.remove(indexOfLastElement);
+        return bitmap;
+    }
+
+    private boolean validPoint(Point point){
+        return point.x >= 0 && point.y >= 0 && point.y <= 15 && point.x <= 15;
+    }
+
+    private Bitmap floodFill(Bitmap original, Point point, int color){
+        if(!validPoint(point)){
+            return null;
+        }
+        Bitmap bitmap = original.copy(original.getConfig(), true);
+        int colorToChange = bitmap.getPixel(point.x, point.y);
+        if(colorToChange == color){
+            return null;
+        }
+        bitmap.setPixel(point.x, point.y, color);
+        Stack<Point> stack = new Stack<>();
+        stack.push(point);
+        Point[] neighbors = {new Point(0,1), new Point(-1,0), new Point(1,0), new Point(0,-1)};
+        do {
+            point = stack.pop();
+            for(Point nextp : neighbors){
+                Point next = new Point(nextp.x + point.x, nextp.y + point.y);
+                if(validPoint(next) && bitmap.getPixel(next.x, next.y) == colorToChange){
+                    bitmap.setPixel(next.x, next.y, color);
+                    stack.push(next);
+                }
+            }
+
+        }while (!stack.empty());
         return bitmap;
     }
 
