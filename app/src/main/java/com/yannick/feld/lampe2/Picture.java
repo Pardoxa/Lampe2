@@ -1,5 +1,7 @@
 package com.yannick.feld.lampe2;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +25,11 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -60,7 +66,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
     private Context context;
     private TextView tv_save_name;
     private ArrayList<Bitmap> bitmapStack = new ArrayList<>();
-    boolean doFloodFill = true;
+    int doFloodFill = 1;
     private ImageButton floodFillbtn;
 
     @Override
@@ -316,10 +322,11 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
 
         floodFillbtn = findViewById(R.id.floodfillbtn);
         floodFillbtn.setOnClickListener(v -> {
-            doFloodFill = !doFloodFill;
+            doFloodFill = doFloodFill == 1 ? 0 : 1;
+
 
             //  https://stackoverflow.com/questions/11376516/change-drawable-color-programmatically/47299270
-            if(doFloodFill){
+            if(doFloodFill == 1){
                 DrawableCompat.setTint(
                         floodFillbtn.getDrawable(),
                         ContextCompat.getColor(context, R.color.floodFillHighlight)
@@ -331,6 +338,65 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                 );
             }
         });
+
+        // Easter egg - setup
+        floodFillbtn.setOnLongClickListener(v -> {
+            switch (doFloodFill){
+                case 1:
+                    doFloodFill = -1;
+                    break;
+                case 0:
+                    doFloodFill = -2;
+                    break;
+                default:
+                    doFloodFill = 1;
+            }
+            Log.d("Flood - L", "" +  doFloodFill);
+            return true;
+        });
+        // Easter egg - spin and change color of btn
+        floodFillbtn.setOnTouchListener((v, event) -> {
+            // https://stackoverflow.com/questions/2614545/animate-change-of-view-background-color-on-android
+            if(doFloodFill < 0 && event.getActionMasked() == ACTION_UP){
+                if(doFloodFill == -3){ // Was already super charged
+                    floodFillbtn.performClick();
+                    doFloodFill = -3;
+                    Log.d("Flood", "" +  doFloodFill);
+                    return true;
+                }
+                RotateAnimation rotateAnimation = new RotateAnimation
+                        (
+                                0,
+                                360,
+                                Animation.RELATIVE_TO_SELF,
+                                0.5f,
+                                Animation.RELATIVE_TO_SELF,
+                                0.5f
+                        );
+                rotateAnimation.setDuration(1000);
+                int startColor;
+                if(doFloodFill == -1){
+                    startColor = ContextCompat.getColor(context, R.color.floodFillHighlight);
+                }else{
+                    startColor = ContextCompat.getColor(context, R.color.floodFillnormal);
+                }
+                doFloodFill = -3;
+                ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), startColor, Color.RED);
+                colorAnimation.setDuration(1500);
+                colorAnimation.addUpdateListener(animation ->
+                        DrawableCompat.setTint(
+                                floodFillbtn.getDrawable(),
+                                (int) animation.getAnimatedValue()
+                        )
+                );
+                colorAnimation.start();
+                rotateAnimation.setInterpolator(new LinearInterpolator());
+
+                floodFillbtn.startAnimation(rotateAnimation);
+            }
+            return false;
+        });
+
         floodFillbtn.performClick();
 
         img.getLocationOnScreen(img_viewCoords);
@@ -354,11 +420,17 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                 y = Math.min(y, max_size);
                 x = Math.max(0, x);
                 y = Math.max(0, y);
-
-                if(doFloodFill){
+                Log.d("Flood - ", "" + doFloodFill);
+                if(doFloodFill == 1 || doFloodFill == -3){
                     switch (event.getActionMasked()){
                         case ACTION_DOWN:
-                            Bitmap bitmap = floodFill(pixel, new Point(x,y), color);
+                            Bitmap bitmap;
+                            if(doFloodFill == 1){
+                                bitmap = floodFill(pixel, new Point(x,y), color);
+                            }else {
+                                // easter egg - change all pixel of old color
+                                bitmap = colorChange(pixel, new Point(x,y), color);
+                            }
                             if(bitmap != null){
                                 addToBitmapStack(pixel);
                                 load_picture(bitmap);
@@ -371,6 +443,7 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                         case ACTION_UP:
                             old_y = -1;
                             old_x = -1;
+                            doFloodFill = 1; // for correct color after performClick()
                             floodFillbtn.performClick();
                             Log.d("Action", "UP");
                             break;
@@ -535,6 +608,25 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
             }
 
         }while (!stack.empty());
+        return bitmap;
+    }
+
+    private Bitmap colorChange(Bitmap original, Point point, int color){
+        if(!validPoint(point)){
+            return null;
+        }
+        Bitmap bitmap = original.copy(original.getConfig(), true);
+        int colorToChange = bitmap.getPixel(point.x, point.y);
+        if(colorToChange == color){
+            return null;
+        }
+        for(int x = 0; x < bitmap.getWidth(); x++){
+            for (int y = 0; y < bitmap.getHeight(); y++){
+                if(bitmap.getPixel(x,y) == colorToChange){
+                    bitmap.setPixel(x,y,color);
+                }
+            }
+        }
         return bitmap;
     }
 
