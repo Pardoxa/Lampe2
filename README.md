@@ -5,7 +5,11 @@ This is the Android part.
 
 Current minSdkVersion 14, so it should work for Android 4.0 upwards, though I only tested it on Android 7.1
 
-Project compiles with Android Studio 3.3.1. Might work with other versions too, but that is the one I used.
+Project compiles with Android Studio 3.3.2. Might work with other versions too, but that is the one I used.
+
+# Installation
+
+See this [instructable](https://www.instructables.com/id/Bluetooth-Lamp-Android-Raspberrypi-Unicornhathd/) for details.
 
 # Base
 

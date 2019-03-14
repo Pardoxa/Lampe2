@@ -125,6 +125,8 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                 }else{
                     load_picture(tempBitmap);
                     SaveAndLoad.saveBitmap(this, -2, pixel);
+                    old_x = -1;
+                    old_y = -1;
                 }
                 //if(!load_picture(-1)){
                 //
@@ -145,14 +147,14 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
                                 && bitmap.getWidth() == pixel.getWidth()
                                 && bitmap.getHeight() == pixel.getHeight()) {
 
-                            int lastpixel = -1;
+                            Integer lastpixel = null;
                             int count = 0;
                             for(int x = 0; x < 16; x++){
                                 for(int y = 0; y < 16; y++){
 
                                     int p = bitmap.getPixel(x,y);
                                     // https://stackoverflow.com/questions/6539879/how-to-convert-a-color-integer-to-a-hex-string-in-android
-                                    if(p == lastpixel){
+                                    if(lastpixel != null && p == lastpixel){
                                         count ++;
                                     }else{
                                         if(count > 0){
@@ -518,13 +520,13 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
             String data = "|<>#~ --command 30 --dur " + duration + " --bright " + brightness
                         + " --rot " + rotation + " --picture '";
             stringBuilder.append(data);
-            int lastpixel = -1;
+            Integer lastpixel = null;
             int count = 0;
             for(int x = 0; x < 16; x++){
                 for(int y = 0; y < 16; y++){
 
                     int p = pixel.getPixel(x,y);
-                    if(p == lastpixel){
+                    if(lastpixel != null && p == lastpixel){
                         count ++;
                     }else{
                         if(count > 0){
