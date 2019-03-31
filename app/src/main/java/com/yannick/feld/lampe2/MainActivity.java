@@ -17,10 +17,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.inputmethod.InputMethodManager;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -45,14 +46,20 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     private int scanState = -1;
     private bluetooth_connect connect = null;
     private ImageButton img_btn;
-    private RelativeLayout relativeLayout_img_btn;
+    private RelativeLayout relativeLayout_img_btn, relativeLayout_flavor;
     private int color;
     private int command_state = 0;
     private float brightness = 0;
     private SeekBar brightness_seekbar;
     private Toast toast;
     private String RaspberryPiName = null;
-    private Menu menu;
+    private NumberPicker[] flavorPicker = new NumberPicker[4];
+
+    private final int flavorMin = 0;
+    private final int flavorMax = 2;
+    private final int[] defaultValueFlavor = {2,0,1,10};
+    private final String[] flavorSaveKeys = {"main_flav_0", "main_flav_1", "main_flav_2", "main_flav_3"};
+    private final String[] flavorDisplayStrings = {"sin", "sqrtSin", "triangle"};
     Context context;
 
 
@@ -92,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        this.menu = menu;
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         rotation = SaveAndLoad.getInt(this, "rotation");
@@ -209,16 +215,30 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
             float hsv[] = new float[3];
             Color.colorToHSV(color, hsv);
             Log.d("HSV 0", Float.toString(hsv[0]));
-            String send = "|<>#~ --dur " + duration + " --bright " + Float.toString(brightness)
-                        + " --rot " + rotation + " --command ";
+            StringBuilder send = new StringBuilder();
+            send.append("|<>#~ --dur ");
+            send.append(duration);
+            send.append(" --bright ");
+            send.append(brightness);
+            send.append(" --rot ");
+            send.append(rotation);
+            send.append(" --command ");
             switch (command_state){
                 case 0:
-                    send += "0 --color '" + hsv[0] + "," + hsv[1] + "," + hsv[2] + "'";
+                    send.append("0 --color '");
+                    for(int i = 0; i < hsv.length; i++){
+                        send.append(hsv[i]);
+                        send.append(i == 2 ? "'" : ",");
+                    }
                     break;
                 case -2:
                     // cancel command
-                    send = "|<>#~ --dur " + 1 + " --bright " + Float.toString(brightness)
-                            + " --rot " + rotation + " --command 0 --color '0,0,0'";
+                    send = new StringBuilder();
+                    send.append( "|<>#~ --dur 1 --bright ");
+                    send.append(brightness);
+                    send.append(" --rot ");
+                    send.append(rotation);
+                    send.append(" --command 0 --color '0,0,0'");
                     break;
                 case -1:
                 case 20:
@@ -237,18 +257,28 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 case 120:
                 case 130:
                 case 140:
-                    send += Integer.toString(command_state);
+                    send.append(command_state);
+                    send.append(" --flavor ");
+                    send.append(flavorPicker[0].getValue() - 2);
+                    for(int i = 1; i < flavorPicker.length; i++){
+                        send.append(" --flavor ");
+                        send.append(flavorPicker[i].getValue());
+                    }
                     break;
                 case 50:
-                    send += "50 --color '" + hsv[0] + "," + hsv[1] + "," + hsv[2] + "'";
+                    send.append("50 --color '");
+                    for(int i = 0; i < hsv.length; i++){
+                        send.append(hsv[i]);
+                        send.append(i == 2 ? "'" : ",");
+                    }
                     break;
 
 
             }
-            send += " ~#><|";
+            send.append(" ~#><|");
             toast.setText("connecting");
             toast.show();
-            connect.onSend(send, true);
+            connect.onSend(send.toString(), true);
 
         });
         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -257,6 +287,41 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         color = SaveAndLoad.getInt(this, "color_main", Color.GREEN);
 
         relativeLayout_img_btn = findViewById(R.id.main_relative_layout_color_picker);
+        relativeLayout_flavor = findViewById(R.id.main_relative_layout_flavor);
+
+        flavorPicker[0] = findViewById(R.id.main_hsv_flavor0);
+        flavorPicker[1] = findViewById(R.id.main_hsv_flavor1);
+        flavorPicker[2] = findViewById(R.id.main_hsv_flavor2);
+        flavorPicker[3] = findViewById(R.id.main_hsv_flavor3);
+
+        flavorPicker[0].setMinValue(0); flavorPicker[0].setMaxValue(50);
+        flavorPicker[0].setFormatter(value -> Integer.toString(value - 2));
+
+        for(int i = 1; i < 3; i++){
+            flavorPicker[i].setMinValue(flavorMin);
+            flavorPicker[i].setMaxValue(flavorMax);
+            flavorPicker[i].setDisplayedValues(flavorDisplayStrings);
+        }
+        flavorPicker[3].setMinValue(1); flavorPicker[3].setMaxValue(100);
+
+        for(int i = 0; i < flavorPicker.length; i++){
+            final int index = i;
+
+            flavorPicker[i].setValue(SaveAndLoad.getInt(context, flavorSaveKeys[i], defaultValueFlavor[i]));
+            if(flavorPicker[i].getValue() == defaultValueFlavor[i]){
+                helper.setNumberPickerTextColor(flavorPicker[i], ContextCompat.getColor(context, R.color.np_textcolor_highlight));
+            }
+
+            flavorPicker[i].setOnValueChangedListener((picker, oldVal, newVal) -> {
+                SaveAndLoad.SaveInt(context, flavorSaveKeys[index], newVal);
+                if(newVal == defaultValueFlavor[index]){
+                    helper.setNumberPickerTextColor(picker, ContextCompat.getColor(context, R.color.np_textcolor_highlight));
+                }else{
+                    helper.setNumberPickerTextColor(picker, ContextCompat.getColor(context, R.color.np_textcolor));
+                }
+            });
+        }
+
         img_btn = findViewById(R.id.main_color_picker);
         img_btn.setBackgroundColor(color);
         img_btn.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_touch_app_black_24dp));
@@ -273,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         });
 
         command_state = SaveAndLoad.getInt(this, "command");
-        change_img_btn_size();
+        correct_layout_height();
 
         radioGroup = findViewById(R.id.r_group);
         radioGroup.check(command_to_id());
@@ -303,11 +368,11 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
 
         duration = SaveAndLoad.getInt(this, "duration", 100);
         duration_btn = findViewById(R.id.duration);
-        duration_btn.setText(formatDuration(duration));
+        duration_btn.setText(helper.formatDuration(duration));
         duration_btn.setOnClickListener(v ->  {
             final PickDuration pickDuration = new PickDuration(this, duration, (seconds) -> {
 
-                duration_btn.setText(formatDuration(seconds));
+                duration_btn.setText(helper.formatDuration(seconds));
                 duration = seconds;
                 SaveAndLoad.SaveInt(this, "duration", duration);
             });
@@ -315,33 +380,31 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         });
     }
 
-    public static String formatDuration(long duration) {
-        long seconds = duration;
-        long absSeconds = Math.abs(seconds);
-        String positive = String.format(
-                "%d:%02d:%02d",
-                absSeconds / 3600,
-                (absSeconds % 3600) / 60,
-                absSeconds % 60);
-        return seconds < 0 ? "-" + positive : positive;
-    }
-
-    private void change_img_btn_size(){
+    private void correct_layout_height(){
         // Make img_btn visible, if the command requires user-specified color
 
         LinearLayout.LayoutParams params =
                 (LinearLayout.LayoutParams) relativeLayout_img_btn.getLayoutParams();
+        LinearLayout.LayoutParams params2 =
+                (LinearLayout.LayoutParams) relativeLayout_flavor.getLayoutParams();
         final float scale = context.getResources().getDisplayMetrics().density;
         switch(command_state){
             case 0:
             case 50:
                 // https://stackoverflow.com/questions/5255184/android-and-setting-width-and-height-programmatically-in-dp-units
                 params.height = (int) (100 * scale + 0.5f); // use dps
+                params2.height = 0;
+                break;
+            case 140:
+                params2.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                params.height = 0;
                 break;
             default:
                 params.height = 0;
+                params2.height = 0;
         }
         relativeLayout_img_btn.setLayoutParams(params);
+        relativeLayout_flavor.setLayoutParams(params2);
     }
 
     private int command_to_id(){
@@ -460,7 +523,7 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
                 break;
         }
         SaveAndLoad.SaveInt(this,"command", command_state);
-        change_img_btn_size();
+        correct_layout_height();
 
     };
 

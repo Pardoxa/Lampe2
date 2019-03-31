@@ -8,4 +8,6 @@
     <color name="state_selected_multiple">#37AF0000</color>
     <color name="floodFillnormal">#979797</color>
     <color name="floodFillHighlight">#34AD00</color>
+    <color name="np_textcolor">#FF000000</color>
+    <color name="np_textcolor_highlight">#009688</color>
 </resources>
