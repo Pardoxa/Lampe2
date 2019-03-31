@@ -55,11 +55,22 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
     private String RaspberryPiName = null;
     private NumberPicker[] flavorPicker = new NumberPicker[4];
 
-    private final int flavorMin = 0;
-    private final int flavorMax = 2;
-    private final int[] defaultValueFlavor = {2,0,1,10};
+    private final int[] defaultValueFlavor = {4,0,1,10};
     private final String[] flavorSaveKeys = {"main_flav_0", "main_flav_1", "main_flav_2", "main_flav_3"};
-    private final String[] flavorDisplayStrings = {"sin", "sqrtSin", "triangle"};
+    private final String[] flavorDisplayStrings =
+            {
+                    "sin",
+                    "sqrtSin",
+                    "triangle",
+                    "line",
+                    "sigmoid",
+                    "struve",
+                    "%struve",
+                    "itstruve0",
+                    "it2struve0",
+                    "extra1",
+                    "extra2"
+            };
     Context context;
 
 
@@ -294,12 +305,12 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
         flavorPicker[2] = findViewById(R.id.main_hsv_flavor2);
         flavorPicker[3] = findViewById(R.id.main_hsv_flavor3);
 
-        flavorPicker[0].setMinValue(0); flavorPicker[0].setMaxValue(50);
+        flavorPicker[0].setMinValue(0); flavorPicker[0].setMaxValue(10);
         flavorPicker[0].setFormatter(value -> Integer.toString(value - 2));
 
         for(int i = 1; i < 3; i++){
-            flavorPicker[i].setMinValue(flavorMin);
-            flavorPicker[i].setMaxValue(flavorMax);
+            flavorPicker[i].setMinValue(0);
+            flavorPicker[i].setMaxValue(flavorDisplayStrings.length - 1);
             flavorPicker[i].setDisplayedValues(flavorDisplayStrings);
         }
         flavorPicker[3].setMinValue(1); flavorPicker[3].setMaxValue(100);
