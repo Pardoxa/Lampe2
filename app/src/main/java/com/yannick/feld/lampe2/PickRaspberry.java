@@ -89,13 +89,6 @@ public class PickRaspberry extends Dialog implements
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.pick_duration_no:
-                dismiss();
-                break;
-            default:
-                break;
-        }
         dismiss();
     }
 }

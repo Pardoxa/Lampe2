@@ -121,7 +121,7 @@ public class PickColor extends Dialog implements
         s2.getProgressDrawable().setColorFilter(Color.GREEN, android.graphics.PorterDuff.Mode.SRC_IN);
         s3.getProgressDrawable().setColorFilter(Color.BLUE, android.graphics.PorterDuff.Mode.SRC_IN);
 
-        rgb_hsv = findViewById(R.id.color_picker_rgb_hsv_switch);
+        rgb_hsv = findViewById(R.id.colorPickerHsvSwitch);
         rgb_hsv.setChecked(use_hsv);
 
         // toggle hsv <-> rgb
@@ -134,15 +134,10 @@ public class PickColor extends Dialog implements
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.pick_duration_yes:
-                pickInterface.color(color, rgb_hsv.isChecked());
-                break;
-            case R.id.pick_duration_no:
-                dismiss();
-                break;
-            default:
-                break;
+        if (v.getId() == R.id.pick_duration_yes) {
+            pickInterface.color(color, rgb_hsv.isChecked());
+        } else if (v.getId() == R.id.pick_duration_no) {
+            dismiss();
         }
         dismiss();
     }

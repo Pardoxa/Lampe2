@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace "com.yannick.feld.lampe2"
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.yannick.feld.lampe2"

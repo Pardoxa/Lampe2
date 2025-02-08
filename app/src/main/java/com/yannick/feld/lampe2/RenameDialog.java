@@ -46,15 +46,10 @@ public class RenameDialog extends Dialog
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.accept_renaming:
-                renameInterface.rename(editText.getText().toString());
-                break;
-            case R.id.pick_duration_no:
-                dismiss();
-                break;
-            default:
-                break;
+        if (v.getId() == R.id.accept_renaming) {
+            renameInterface.rename(editText.getText().toString());
+        } else if (v.getId() == R.id.pick_duration_no) {
+            dismiss();
         }
         dismiss();
     }

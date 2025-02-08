@@ -46,16 +46,13 @@ public class PickRotation extends Dialog implements
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.pick_duration_yes:
-                pickInterface.setDuration(np_rotation.getValue());
-                break;
-            case R.id.pick_duration_no:
-                dismiss();
-                break;
-            default:
-                break;
+        if (v.getId() == R.id.pick_duration_yes) {
+            pickInterface.setDuration(np_rotation.getValue());
+        } else if (v.getId() == R.id.pick_duration_no) {
+            dismiss();
         }
+
         dismiss();
+
     }
 }

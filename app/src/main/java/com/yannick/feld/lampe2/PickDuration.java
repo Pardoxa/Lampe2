@@ -60,15 +60,13 @@ public class PickDuration extends Dialog implements
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.pick_duration_yes:
-                pickInterface.setDuration(np_hours.getValue() * 3600 + np_minutes.getValue() * 60 + np_seconds.getValue());
-                break;
-            case R.id.pick_duration_no:
-                dismiss();
-                break;
-            default:
-                break;
+        int id = v.getId();
+        if (id == R.id.pick_duration_yes) {
+            pickInterface.setDuration(np_hours.getValue() * 3600 + np_minutes.getValue() * 60 + np_seconds.getValue());
+        } else if (id == R.id.pick_duration_no){
+            dismiss();
+        } else {
+            dismiss();
         }
         dismiss();
     }

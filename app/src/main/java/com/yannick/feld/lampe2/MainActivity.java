@@ -28,7 +28,11 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.yannick.feld.lampe2.R;
 
 interface IconChangeCallback {
     void callback(int status);
@@ -121,49 +125,47 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-        switch (item.getItemId()){
-            case R.id.mode_toggle:
-                // Toggle daynight mode
-                is_night = !is_night;
-                SaveAndLoad.SaveBoolean(this, "d_n_mode", is_night);
-                super.recreate();
-                break;
-            case R.id.rotation:
-                // pick rotation to send to the pi. Orientation of the unicorn-hat-hd
-                final PickRotation pickRotation = new PickRotation(this, rotation, (rotation) -> {
 
-                    this.rotation = rotation;
-                    (item).setTitle(PickRotation.displayed[rotation]);
-                    SaveAndLoad.SaveInt(this, "rotation", rotation);
-                });
-                pickRotation.show();
-                break;
-            case R.id.main_menu_raspberry:
-                final PickRaspberry raspberry = new PickRaspberry(this, this, name -> {
-                    RaspberryPiName = name;
-                    SaveAndLoad.SaveString(context, "Bluetooth_name", name);
-                    item.setTitle(name);
-                    // Unregister broadcast listeners
-                    unregisterReceiver(connect.mReceiver);
-                    connect = new bluetooth_connect(this, this, RaspberryPiName);
-                    // For Callback when user turns off bluetooth (used for icon change top left)
-                    IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-                    registerReceiver(connect.mReceiver, filter);
-                });
-                raspberry.show();
-                break;
-            default:
-                if(scanState == -1){
-                    // Request to enable bluetooth if not enabled
-                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    this.startActivityForResult(enableBtIntent, 1);
-                    connect.findRaspberry();
-                }else{
-                    Toast.makeText(this, "Bluetooth enabled",Toast.LENGTH_SHORT).show();
-                }
+        int id = item.getItemId();
+        if (id == R.id.mode_toggle){
+            // Toggle daynight mode
+            is_night = !is_night;
+            SaveAndLoad.SaveBoolean(this, "d_n_mode", is_night);
+            super.recreate();
+        } else if (id == R.id.rotation)
+        {
+            // pick rotation to send to the pi. Orientation of the unicorn-hat-hd
+            final PickRotation pickRotation = new PickRotation(this, rotation, (rotation) -> {
 
-                break;
+                this.rotation = rotation;
+                (item).setTitle(PickRotation.displayed[rotation]);
+                SaveAndLoad.SaveInt(this, "rotation", rotation);
+            });
+            pickRotation.show();
+        } else if (id == R.id.main_menu_raspberry)
+        {
+            final PickRaspberry raspberry = new PickRaspberry(this, this, name -> {
+                RaspberryPiName = name;
+                SaveAndLoad.SaveString(context, "Bluetooth_name", name);
+                item.setTitle(name);
+                // Unregister broadcast listeners
+                unregisterReceiver(connect.mReceiver);
+                connect = new bluetooth_connect(this, this, RaspberryPiName);
+                // For Callback when user turns off bluetooth (used for icon change top left)
+                IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+                registerReceiver(connect.mReceiver, filter);
+            });
+            raspberry.show();
+        } else if (scanState == -1)
+        {
+            // Request to enable bluetooth if not enabled
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            this.startActivityForResult(enableBtIntent, 1);
+            connect.findRaspberry();
+        } else {
+            Toast.makeText(this, "Bluetooth enabled",Toast.LENGTH_SHORT).show();
         }
+
         return true;
     }
 
@@ -466,7 +468,8 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
 
     private RadioGroup.OnCheckedChangeListener checkChangeListener = (group, checkedId) -> {
         // Save command representing the user selection
-        switch (checkedId){
+
+        /*switch (checkedId){
             // 30 = draw
             case R.id.radio_color:
                 command_state = 0;
@@ -532,7 +535,40 @@ public class MainActivity extends AppCompatActivity implements IconChangeCallbac
             case R.id.radio_hsv_wave:
                 command_state = 140;
                 break;
+        }*/
+        Map<Integer, Integer> commandMap = new HashMap<>();
+        commandMap.put(R.id.radio_color, 0);
+        commandMap.put(R.id.radio_iconshow, 20);
+        commandMap.put(R.id.radio_demo, 40);
+        commandMap.put(R.id.radio_swirl, 41);
+        commandMap.put(R.id.radio_rainbow_search, 42);
+        commandMap.put(R.id.radio_tunnel, 43);
+        commandMap.put(R.id.radio_checker, 44);
+        commandMap.put(R.id.radio_gradient, 45);
+        commandMap.put(R.id.radio_eye, 50);
+        commandMap.put(R.id.radio_candle, 60);
+        commandMap.put(R.id.radio_stars, 70);
+        commandMap.put(R.id.radio_rainbow, 80);
+        commandMap.put(R.id.radio_game_of_life, 90);
+        commandMap.put(R.id.radio_cancel, -2);
+        commandMap.put(R.id.radio_drop, 100);
+        commandMap.put(R.id.radio_rainbow_dot, 110);
+        commandMap.put(R.id.radio_cross, 120);
+        commandMap.put(R.id.radio_clock, 130);
+        commandMap.put(R.id.radio_hsv_wave, 140);
+
+        // Special case for shutdown
+        if (checkedId == R.id.radio_shutdown) {
+            command_state = -1;
+            Toast toast = Toast.makeText(this, "Sending this will shutdown the Raspberry Pi!", Toast.LENGTH_SHORT);
+            TextView v = toast.getView().findViewById(android.R.id.message);
+            v.setTextColor(Color.RED);
+            toast.show();
+        } else if (commandMap.containsKey(checkedId)) {
+            command_state = commandMap.get(checkedId);
         }
+
+
         SaveAndLoad.SaveInt(this,"command", command_state);
         correct_layout_height();
 

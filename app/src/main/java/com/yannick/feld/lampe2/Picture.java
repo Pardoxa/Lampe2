@@ -79,120 +79,114 @@ public class Picture extends AppCompatActivity implements IconChangeCallback{
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-        switch (item.getItemId()){
-            case R.id.save_menu_picture:
-                Log.d("Save", "calling");
-                SaveAndLoad.saveBitmap(this, save, pixel);
-                Toast.makeText(this,"Saved " + save, Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.load_menu_picture:
-                SaveFileDialog saveFileDialog1 = new SaveFileDialog(this, this, save, (position, name) -> {
-                    if(position >= 0){
-                        save = position;
-                    }
 
+        int id = item.getItemId();
+        if (id == R.id.save_menu_picture){
+            Log.d("Save", "calling");
+            SaveAndLoad.saveBitmap(this, save, pixel);
+            Toast.makeText(this,"Saved " + save, Toast.LENGTH_SHORT).show();
+        } else if(id == R.id.load_menu_picture){
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog(this, this, save, (position, name) -> {
+                if(position >= 0){
+                    save = position;
+                }
+
+                Log.d("Save", Integer.toString(save));
+                SaveAndLoad.SaveInt(context, "save", save);
+                tv_save_name.setText(context.getResources().getString(R.string.display_save_name) + name);
+                if(position >= 0){
+                    boolean success = load_picture(position);
+                    if(success){
+                        Toast.makeText(this, "Loaded " + save, Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(this, "Can't load " + save + "- not saved yet?", Toast.LENGTH_LONG).show();
+                    }
+                }
+
+            });
+            saveFileDialog1.show();
+        } else if (id == R.id.np_menu_picture){
+            SaveFileDialog saveFileDialog = new SaveFileDialog(this, this, save, (position, name) -> {
+                if(position >= 0){
+                    save = position;
                     Log.d("Save", Integer.toString(save));
                     SaveAndLoad.SaveInt(context, "save", save);
-                    tv_save_name.setText(context.getResources().getString(R.string.display_save_name) + name);
-                    if(position >= 0){
-                        boolean success = load_picture(position);
-                        if(success){
-                            Toast.makeText(this, "Loaded " + save, Toast.LENGTH_SHORT).show();
-                        }else{
-                            Toast.makeText(this, "Can't load " + save + "- not saved yet?", Toast.LENGTH_LONG).show();
-                        }
-                    }
-
-                });
-                saveFileDialog1.show();
-
-                break;
-            case R.id.np_menu_picture:
-                SaveFileDialog saveFileDialog = new SaveFileDialog(this, this, save, (position, name) -> {
-                    if(position >= 0){
-                        save = position;
-                        Log.d("Save", Integer.toString(save));
-                        SaveAndLoad.SaveInt(context, "save", save);
-                    }
-                    tv_save_name.setText(context.getResources().getString(R.string.display_save_name) + name);
-                });
-                saveFileDialog.show();
-                break;
-            case R.id.undo_menu_picture:
-                Bitmap tempBitmap = popBitmapStack();
-                if(tempBitmap == null){
-                    Toast.makeText(this, "Can't undo action - nothing done yet?", Toast.LENGTH_LONG).show();
-                }else{
-                    load_picture(tempBitmap);
-                    SaveAndLoad.saveBitmap(this, -2, pixel);
-                    old_x = -1;
-                    old_y = -1;
                 }
-                //if(!load_picture(-1)){
-                //
-                //}else{
-                //    SaveAndLoad.saveBitmap(this, -2, pixel);
-                //}
-                break;
-            case R.id.menu_drawing_show:
-                SaveFileDialog saveFileDialog3 = new SaveFileDialog(this, this, save, true, null, (positions, dur) -> {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    String data = "|<>#~ --command 31 --dur " + duration + " --bright " + brightness
-                            + " --rot " + rotation + " --freq " + dur + " --picture '";
-                    stringBuilder.append(data);
-                    for(Integer pic : positions){
-                        Log.d("POSITIONS", "" + pic);
-                        Bitmap bitmap = SaveAndLoad.getBitmap(context, pic);
-                        if(bitmap != null
-                                && bitmap.getWidth() == pixel.getWidth()
-                                && bitmap.getHeight() == pixel.getHeight()) {
+                tv_save_name.setText(context.getResources().getString(R.string.display_save_name) + name);
+            });
+            saveFileDialog.show();
+        } else if (id == R.id.undo_menu_picture){
+            Bitmap tempBitmap = popBitmapStack();
+            if(tempBitmap == null){
+                Toast.makeText(this, "Can't undo action - nothing done yet?", Toast.LENGTH_LONG).show();
+            }else{
+                load_picture(tempBitmap);
+                SaveAndLoad.saveBitmap(this, -2, pixel);
+                old_x = -1;
+                old_y = -1;
+            }
+            //if(!load_picture(-1)){
+            //
+            //}else{
+            //    SaveAndLoad.saveBitmap(this, -2, pixel);
+            //}
+        } else if (id == R.id.menu_drawing_show) {
+            SaveFileDialog saveFileDialog3 = new SaveFileDialog(this, this, save, true, null, (positions, dur) -> {
+                StringBuilder stringBuilder = new StringBuilder();
+                String data = "|<>#~ --command 31 --dur " + duration + " --bright " + brightness
+                        + " --rot " + rotation + " --freq " + dur + " --picture '";
+                stringBuilder.append(data);
+                for(Integer pic : positions){
+                    Log.d("POSITIONS", "" + pic);
+                    Bitmap bitmap = SaveAndLoad.getBitmap(context, pic);
+                    if(bitmap != null
+                            && bitmap.getWidth() == pixel.getWidth()
+                            && bitmap.getHeight() == pixel.getHeight()) {
 
-                            Integer lastpixel = null;
-                            int count = 0;
-                            for(int x = 0; x < 16; x++){
-                                for(int y = 0; y < 16; y++){
+                        Integer lastpixel = null;
+                        int count = 0;
+                        for(int x = 0; x < 16; x++){
+                            for(int y = 0; y < 16; y++){
 
-                                    int p = bitmap.getPixel(x,y);
-                                    // https://stackoverflow.com/questions/6539879/how-to-convert-a-color-integer-to-a-hex-string-in-android
-                                    if(lastpixel != null && p == lastpixel){
-                                        count ++;
-                                    }else{
-                                        if(count > 0){
-                                            stringBuilder.append("x");
-                                            stringBuilder.append(count);
-                                            stringBuilder.append("x");
-                                            count = 0;
-                                        }
-                                        lastpixel = p;
-                                        stringBuilder.append(Integer.toHexString(p).substring(2));
+                                int p = bitmap.getPixel(x,y);
+                                // https://stackoverflow.com/questions/6539879/how-to-convert-a-color-integer-to-a-hex-string-in-android
+                                if(lastpixel != null && p == lastpixel){
+                                    count ++;
+                                }else{
+                                    if(count > 0){
+                                        stringBuilder.append("x");
+                                        stringBuilder.append(count);
+                                        stringBuilder.append("x");
+                                        count = 0;
                                     }
-
+                                    lastpixel = p;
+                                    stringBuilder.append(Integer.toHexString(p).substring(2));
                                 }
+
                             }
-                            if(count > 0){
-                                stringBuilder.append("x");
-                                stringBuilder.append(count);
-                                stringBuilder.append("x");
-                            }
-                        }else {
-                            continue;
                         }
-                        stringBuilder.append("|");
-
+                        if(count > 0){
+                            stringBuilder.append("x");
+                            stringBuilder.append(count);
+                            stringBuilder.append("x");
+                        }
+                    }else {
+                        continue;
                     }
+                    stringBuilder.append("|");
 
-                    data = stringBuilder.toString() + "' ~#><|";
+                }
+
+                data = stringBuilder.toString() + "' ~#><|";
 
 
-                    toast.setText("connecting");
-                    toast.show();
-                    connect.onSend(data, true);
-                });
-                saveFileDialog3.show();
-                break;
-            default:
-                finish();
-                break;
+                toast.setText("connecting");
+                toast.show();
+                connect.onSend(data, true);
+            });
+            saveFileDialog3.show();
+        } else {
+            finish();
         }
         return true;
     }
